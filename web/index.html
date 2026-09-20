@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="description" content="JuwishCoin (JWC) - VIP Crypto Trading Terminal and Gold Cloud Mining Telegram Mini App on BNB Smart Chain.">
+
+  <!-- iOS / Mobile Viewport Configuration with touch manipulation and zoom prevention -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="JuwishCoin JWC">
+  <meta name="theme-color" content="#080808">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <title>JuwishCoin (JWC) | VIP Trading & Mining</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Core Reset & Luxury Black-Gold Styling -->
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    /* Immediate inline critical CSS to guarantee zero flash of unstyled content */
+    html, body {
+      overflow: hidden;
+      overscroll-behavior-y: none;
+      touch-action: manipulation;
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #080808;
+    }
+  </style>
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <script>
+    // Initialize Telegram WebApp SDK immediately
+    (function initTelegramWebApp() {
+      try {
+        if (window.Telegram && window.Telegram.WebApp) {
+          const tg = window.Telegram.WebApp;
+          // Notify Telegram that the Mini App is initialized
+          tg.ready();
+          // Expand webview to maximum available height
+          tg.expand();
+          // Prevent accidental swipe-down-to-dismiss on iOS during intensive mining tap gestures
+          if (typeof tg.enableClosingConfirmation === 'function') {
+            tg.enableClosingConfirmation();
+          }
+          // Set Luxury Obsidian Chrome theme colors
+          if (typeof tg.setHeaderColor === 'function') {
+            tg.setHeaderColor('#080808');
+          }
+          if (typeof tg.setBackgroundColor === 'function') {
+            tg.setBackgroundColor('#080808');
+          }
+          console.log('[JWC TMA] Telegram WebApp initialized successfully. Version:', tg.version, 'Platform:', tg.platform);
+        } else {
+          console.log('[JWC TMA] Telegram WebApp SDK loaded in standalone/browser mode.');
+        }
+      } catch (err) {
+        console.warn('[JWC TMA] Telegram WebApp initialization notice:', err);
+      }
+    })();
+
+    // Remove loading splash screen when Flutter renders its first frame
+    function removeJwcLoader() {
+      const loader = document.getElementById('loading');
+      if (loader && !loader.classList.contains('loaded')) {
+        loader.classList.add('loaded');
+        setTimeout(() => {
+          if (loader.parentNode) {
+            loader.parentNode.removeChild(loader);
+          }
+        }, 500);
+        console.log('[JWC TMA] First frame rendered - splash loader dismissed.');
+      }
+    }
+
+    // Listen for Flutter's first frame event
+    window.addEventListener('flutter-first-frame', removeJwcLoader);
+
+    // Fallback timer in case event is missed
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        if (document.querySelector('flutter-view') || document.querySelector('flt-glass-pane') || document.querySelector('canvas')) {
+          removeJwcLoader();
+        }
+      }, 3500);
+    });
+  </script>
+</head>
+<body>
+  <!-- Pure HTML/CSS Luxury Gold Spinner & Splash Screen -->
+  <div id="loading">
+    <div class="loader-container">
+      <div class="spinner-ring">
+        <div class="spinner-outer"></div>
+        <div class="spinner-inner">
+          <span class="spinner-emblem">✡</span>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap: 4px;">
+        <span class="loading-title">JuwishCoin Forge Loading...</span>
+        <span class="loading-subtitle">BNB SMART CHAIN VIP NODE</span>
+      </div>
+      <div class="loading-bar">
+        <div class="loading-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

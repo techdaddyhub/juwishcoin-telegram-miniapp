@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#131313;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "error": "#ffb4ab", "tertiary-container": "#e7d8bb", "on-primary-fixed": "#221b00", "on-primary-container": "#705e00", "outline": "#999077", "secondary-fixed-dim": "#ffb952", "primary": "#fff6df", "on-surface": "#e5e2e1", "tertiary": "#fff5e4", "inverse-on-surface": "#313030", "secondary-container": "#ffaa00", "on-error-container": "#ffdad6", "on-primary-fixed-variant": "#544600", "on-primary": "#3a3000", "surface-container-low": "#1c1b1b", "surface-container": "#201f1f", "on-tertiary-container": "#685e46", "on-tertiary-fixed": "#221b08", "primary-fixed-dim": "#e9c400", "surface-dim": "#131313", "surface-bright": "#3a3939", "surface-container-lowest": "#0e0e0e", "surface-container-highest": "#353534", "on-secondary-container": "#694300", "primary-fixed": "#ffe16d", "on-tertiary-fixed-variant": "#4f4630", "background": "#131313", "outline-variant": "#4d4732", "secondary": "#ffcf90", "on-secondary": "#452b00", "on-secondary-fixed": "#291800", "tertiary-fixed": "#f0e1c3", "tertiary-fixed-dim": "#d3c5a8", "on-tertiary": "#38301b", "primary-container": "#ffd700", "surface-tint": "#e9c400", "inverse-surface": "#e5e2e1", "surface": "#131313", "surface-variant": "#353534", "on-background": "#e5e2e1", "secondary-fixed": "#ffddb4", "on-error": "#690005", "inverse-primary": "#705d00", "error-container": "#93000a", "surface-container-high": "#2a2a2a", "on-secondary-fixed-variant": "#633f00", "on-surface-variant": "#d0c6ab" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-md": "0.75rem", "gutter-mobile": "0.5rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "space-lg": "1rem", "space-xl": "1.5rem", "margin-mobile": "0.75rem", "gutter": "0.75rem", "margin": "1rem" }, "fontFamily": { "body-sm": ["Inter"], "body-lg": ["Inter"], "headline-sm": ["Inter"], "headline-xl-mobile": ["Inter"], "headline-xl": ["Inter"], "headline-md": ["Inter"], "headline-lg": ["Inter"], "body-md": ["Inter"], "label-caps": ["Inter"], "label-numeric": ["JetBrains Mono"] }, "fontSize": { "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-sm": ["16px", { "lineHeight": "22px", "fontWeight": "600" }], "headline-xl-mobile": ["28px", { "lineHeight": "34px", "fontWeight": "700" }], "headline-xl": ["36px", { "lineHeight": "44px", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "26px", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "30px", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "label-caps": ["10px", { "lineHeight": "12px", "fontWeight": "700" }], "label-numeric": ["14px", { "lineHeight": "18px", "fontWeight": "500" }] } } } };</script></head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_12px_rgba(0,0,0,0.4)]"><div class="h-20 px-space-md flex flex-col justify-center gap-space-xs"><div class="flex items-center justify-between"><div class="flex items-center gap-space-xs"><div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-surface-container-highest"></span><span class="w-2.5 h-2.5 rounded-full bg-surface-container-highest"></span><span class="w-2.5 h-2.5 rounded-full bg-primary-container/80"></span></div><div class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[14px]">token</span><span class="font-label-caps text-label-caps uppercase tracking-wider text-secondary-fixed">BSC</span></div></div><div class="flex items-center gap-space-xs"><div class="inline-flex items-center gap-1 px-space-xs py-1 rounded-full bg-surface-container-low"><span class="material-symbols-outlined text-primary-container text-[13px]">account_balance_wallet</span><span class="font-label-numeric text-label-numeric text-on-surface-variant">0x7F2b...c819</span></div><div class="inline-flex items-center gap-1 px-space-xs py-1 rounded-full bg-surface-container-high"><span class="material-symbols-outlined text-primary-container text-[13px]">monetization_on</span><span class="font-label-numeric text-label-numeric text-secondary font-semibold">148,250 JWC</span></div><button aria-label="VIP Notifications" class="relative w-11 h-11 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-on-surface-variant text-[20px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary-container shadow-[0_0_8px_rgba(255,215,0,0.8)]"></span></button><div class="relative flex items-center justify-center p-0.5 rounded-full"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBfy1KnICTzVSN8Smw6lE-hcsOns_xYthXfsc6cEz0nmeCrLiethIZMXFd351GYr3jWYg60-EscVnkPJXGb7sq9y7hjqLHDj4ibY_z-mfISeosNdCCN01p2zFgE3NW7ZAIO9dkh5_2HA61LbZJnk3F9fnjMy7fcb7pCktTW8vPXet0hNwLUJKIc4DhgsYDxKJUeycrixP_7cNVrRS3oJNSeTS0txx1u0mKc8RH9qWw0ME8_Hn3xzCK"/></div></div></div><div class="flex items-center justify-between"><h1 class="font-headline-sm text-headline-sm text-primary tracking-wide uppercase">Cloud Mine</h1><div class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-surface-container-highest"><span class="material-symbols-outlined text-primary-container text-[12px]">stars</span><span class="font-label-caps text-label-caps text-primary-fixed">VIP TIER 3</span></div></div></div></header><main class="flex flex-col relative w-full pt-20 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full px-space-md gap-space-lg select-none pb-12">
+<div class="flex flex-col items-center justify-center pt-space-xs text-center">
+<div class="inline-flex items-center gap-1.5 px-space-md py-1 rounded-full bg-surface-container-high shadow-sm">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-ping"></span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-primary-fixed">BNB Smart Chain Core Node</span>
+</div>
+<span class="font-label-caps text-label-caps tracking-widest uppercase text-on-surface-variant mt-space-sm">Total Farmed JWC</span>
+<div class="flex items-baseline justify-center gap-1.5 mt-0.5">
+<span class="font-label-numeric font-bold text-headline-xl-mobile text-primary tracking-tight drop-shadow-[0_2px_12px_rgba(255,215,0,0.35)]" id="live-total-counter">
+        42,891.4829
+      </span>
+<span class="font-headline-sm text-headline-sm text-secondary-fixed">JWC</span>
+</div>
+<div class="inline-flex items-center gap-2 px-space-md py-1 mt-space-xs rounded-full bg-surface-container-low shadow-inner">
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-container opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary-container"></span>
+</span>
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Unclaimed Yield</span>
+<span class="font-label-numeric text-label-numeric text-primary-fixed font-bold tracking-tight" id="live-unclaimed">
+        +384.19 JWC
+      </span>
+</div>
+</div>
+<div class="relative w-full flex flex-col items-center justify-center my-space-xs">
+<div class="absolute w-64 h-64 rounded-full bg-primary-container/10 blur-3xl pointer-events-none -z-10"></div>
+<div class="absolute w-72 h-72 rounded-full bg-secondary-container/5 blur-2xl pointer-events-none -z-10"></div>
+<div class="relative w-full max-w-[320px] h-64 flex items-center justify-center cursor-pointer active:scale-95 transition-transform duration-100" id="tap-medallion-zone">
+<svg class="absolute inset-0 w-full h-full pointer-events-none animate-[spin_24s_linear_infinite]" viewbox="0 0 260 260">
+<defs>
+<lineargradient id="orbitGold" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#FFD700" stop-opacity="0.8"></stop>
+<stop offset="50%" stop-color="#FFAA00" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#FFD700" stop-opacity="0.8"></stop>
+</lineargradient>
+</defs>
+<circle cx="130" cy="130" fill="none" r="118" stroke="url(#orbitGold)" stroke-dasharray="12 18 4 14" stroke-opacity="0.6" stroke-width="1.5"></circle>
+<circle cx="130" cy="130" fill="none" r="126" stroke="#FFAA00" stroke-dasharray="2 10" stroke-opacity="0.4" stroke-width="0.75"></circle>
+</svg>
+<div class="absolute w-44 h-44 rounded-full bg-surface-container-highest/60 backdrop-blur-md shadow-2xl flex items-center justify-center pointer-events-none">
+<div class="w-36 h-36 rounded-full bg-surface-container-lowest/80 flex items-center justify-center"></div>
+</div>
+<!-- STITCH_THREEJS_START:ANIMATION_2 class="w-full h-64 mx-auto relative z-10 bg-transparent" -->
+<div class="w-full h-64 mx-auto relative z-10 bg-transparent" style="display:block;">
+<script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+<div id="threejs-container-ANIMATION_2" style="width:100%;height:100%"></div>
+<script>
+(function() {
+  const container = document.getElementById('threejs-container-ANIMATION_2');
+  const devicePixelRatio = window.devicePixelRatio || 1;
+  // Three.js Interactive 3D Gold JuwishCoin Medallion Scene
+const container = document.getElementById('threejs-container') || document.querySelector('threejs-scene') || document.body;
+const width = container.clientWidth || window.innerWidth || 360;
+const height = container.clientHeight || 320;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+camera.position.set(0, 0, 5.2);
+
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+renderer.setSize(width, height);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.35;
+container.appendChild(renderer.domElement);
+
+// Lighting setup for rich metallic gold shine
+const ambientLight = new THREE.AmbientLight(0xffeedd, 1.2);
+scene.add(ambientLight);
+
+const dirLight1 = new THREE.DirectionalLight(0xffd700, 3.2);
+dirLight1.position.set(4, 5, 4);
+scene.add(dirLight1);
+
+const dirLight2 = new THREE.DirectionalLight(0xffa500, 2.0);
+dirLight2.position.set(-4, -2, 3);
+scene.add(dirLight2);
+
+const pointLight = new THREE.PointLight(0xffffff, 2.5, 10);
+pointLight.position.set(0, 2, 3.5);
+scene.add(pointLight);
+
+// Create Coin Medallion Group
+const coinGroup = new THREE.Group();
+scene.add(coinGroup);
+
+// Main Coin Body (Gold Cylinder)
+const coinGeo = new THREE.CylinderGeometry(1.65, 1.65, 0.22, 64);
+const coinMat = new THREE.MeshPhongMaterial({
+  color: 0xffd000,
+  emissive: 0x442200,
+  specular: 0xffffff,
+  shininess: 95,
+  flatShading: false
+});
+const coinMesh = new THREE.Mesh(coinGeo, coinMat);
+coinMesh.rotation.x = Math.PI / 2;
+coinGroup.add(coinMesh);
+
+// Outer Embossed Beveled Rim
+const rimGeo = new THREE.TorusGeometry(1.62, 0.09, 24, 64);
+const rimMat = new THREE.MeshPhongMaterial({
+  color: 0xffe680,
+  emissive: 0x331a00,
+  specular: 0xffffff,
+  shininess: 120
+});
+const rimFront = new THREE.Mesh(rimGeo, rimMat);
+rimFront.position.z = 0.115;
+coinGroup.add(rimFront);
+
+const rimBack = rimFront.clone();
+rimBack.position.z = -0.115;
+coinGroup.add(rimBack);
+
+// Medallion Star of David Motif
+const starGroup = new THREE.Group();
+const triGeo = new THREE.BufferGeometry();
+const r = 0.95;
+const t1Vertices = new Float32Array([
+  0, r, 0.125,
+  r * Math.cos(Math.PI / 6), -r * Math.sin(Math.PI / 6), 0.125,
+  -r * Math.cos(Math.PI / 6), -r * Math.sin(Math.PI / 6), 0.125
+]);
+triGeo.setAttribute('position', new THREE.BufferAttribute(t1Vertices, 3));
+triGeo.computeVertexNormals();
+
+const starMat = new THREE.MeshPhongMaterial({
+  color: 0xfff0a0,
+  emissive: 0x553300,
+  specular: 0xffffff,
+  shininess: 100,
+  side: THREE.DoubleSide
+});
+const t1 = new THREE.Mesh(triGeo, starMat);
+starGroup.add(t1);
+
+const t2 = t1.clone();
+t2.rotation.z = Math.PI;
+starGroup.add(t2);
+
+coinGroup.add(starGroup);
+
+// Backside Star
+const starBack = starGroup.clone();
+starBack.position.z = -0.25;
+coinGroup.add(starBack);
+
+// Gold Particle Halo / Accelerator Ring
+const particleCount = 75;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount; i++) {
+  const angle = (i / particleCount) * Math.PI * 2;
+  const rad = 2.05 + (Math.random() - 0.5) * 0.45;
+  pPos[i * 3] = Math.cos(angle) * rad;
+  pPos[i * 3 + 1] = Math.sin(angle) * rad;
+  pPos[i * 3 + 2] = (Math.random() - 0.5) * 0.6;
+}
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+const pMat = new THREE.PointsMaterial({
+  color: 0xffd700,
+  size: 0.065,
+  transparent: true,
+  opacity: 0.85,
+  blending: THREE.AdditiveBlending
+});
+const particles = new THREE.Points(pGeo, pMat);
+scene.add(particles);
+
+// Tilt coin slightly for dimensional luxury look
+coinGroup.rotation.x = 0.25;
+coinGroup.rotation.y = 0.35;
+
+// Animation Render Loop
+let clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const elapsedTime = clock.getElapsedTime();
+  
+  // Continuous smooth metallic spin
+  coinGroup.rotation.y += 0.016;
+  coinGroup.position.y = Math.sin(elapsedTime * 1.8) * 0.12;
+  
+  // Counter-rotating particle field
+  particles.rotation.z -= 0.008;
+  particles.rotation.x = Math.sin(elapsedTime * 0.6) * 0.15;
+  
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  const newW = container.clientWidth || window.innerWidth;
+  const newH = container.clientHeight || 320;
+  camera.aspect = newW / newH;
+  camera.updateProjectionMatrix();
+  renderer.setSize(newW, newH);
+});
+
+})();
+</script>
+</div>
+<!-- STITCH_THREEJS_END:ANIMATION_2 -->
+<div class="absolute inset-0 pointer-events-none z-20 overflow-hidden" id="click-particles-container"></div>
+</div>
+<div class="flex items-center gap-1.5 px-space-md py-1 rounded-full bg-surface-container-highest shadow-sm mt-space-xs">
+<span class="material-symbols-outlined text-primary-container text-[16px]">touch_app</span>
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-secondary-fixed">Tap Coin to Accelerate (+0.05 JWC/tap)</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-space-xs w-full">
+<div class="flex flex-col p-space-sm rounded-xl bg-surface-container-low shadow-sm justify-between">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-caps text-label-caps uppercase">Hashrate</span>
+<span class="material-symbols-outlined text-primary-container text-[16px]">bolt</span>
+</div>
+<div class="mt-space-sm">
+<span class="font-label-numeric text-label-numeric font-bold text-primary block">250.0</span>
+<span class="font-label-caps text-label-caps text-primary-fixed uppercase tracking-tight">MH/s Stable</span>
+</div>
+</div>
+<div class="flex flex-col p-space-sm rounded-xl bg-surface-container-low shadow-sm justify-between">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-caps text-label-caps uppercase">Cluster</span>
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+</div>
+<div class="mt-space-sm">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface block truncate">Rig #01</span>
+<span class="font-label-caps text-label-caps text-secondary uppercase">Online VIP</span>
+</div>
+</div>
+<div class="flex flex-col p-space-sm rounded-xl bg-surface-container-low shadow-sm justify-between">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="font-label-caps text-label-caps uppercase">24h Est.</span>
+<span class="material-symbols-outlined text-secondary-fixed-dim text-[16px]">trending_up</span>
+</div>
+<div class="mt-space-sm">
+<span class="font-label-numeric text-label-numeric font-bold text-primary block truncate">~1,450</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-tight">≈ $4,125</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col p-space-md rounded-xl bg-surface-container shadow-md gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary-container text-[18px]">timelapse</span>
+<span class="font-body-sm text-body-sm font-semibold text-primary">Session Farm Cycle</span>
+</div>
+<span class="font-label-numeric text-label-numeric text-primary-fixed font-medium">06h 45m 12s</span>
+</div>
+<div class="relative w-full h-2.5 rounded-full bg-surface-container-highest overflow-hidden">
+<div class="h-full rounded-full bg-gradient-to-r from-secondary-container via-primary-container to-secondary-fixed shadow-[0_0_12px_rgba(255,215,0,0.5)]" style="width: 68%;"></div>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wider">
+<span>Cycle Progress: 68%</span>
+<span class="text-secondary-fixed">Target: 500 JWC Cap</span>
+</div>
+<button class="w-full mt-space-xs py-3 px-space-md rounded-xl bg-gradient-to-r from-primary-container via-secondary-container to-primary-container text-on-primary font-headline-sm text-headline-sm font-bold uppercase tracking-wider shadow-[0_4px_24px_rgba(255,215,0,0.3)] active:scale-[0.98] transition-transform flex items-center justify-center gap-2" id="claim-payout-btn">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+<span>Claim 384.19 JWC &amp; Restart</span>
+</button>
+</div>
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary-container text-[18px]">memory</span>
+<span class="font-headline-sm text-headline-sm text-primary">VIP Mining Rigs &amp; Node Upgrades</span>
+</div>
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Tier 3 Master</span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between p-space-md rounded-xl bg-surface-container-high shadow-sm">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary-container text-[26px]">dns</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-primary truncate">Gold Master Rig</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container-lowest font-label-caps text-label-caps text-primary-fixed uppercase">Active</span>
+</div>
+<span class="font-label-numeric text-label-numeric text-on-surface-variant">250 MH/s • <span class="text-primary-fixed font-semibold">+45% APY Session</span></span>
+</div>
+</div>
+<div class="flex items-center gap-1 flex-shrink-0 pl-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+</div>
+</div>
+<div class="flex items-center justify-between p-space-md rounded-xl bg-surface-container shadow-sm">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary text-[26px]">grid_goldenratio</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-primary truncate">Diamond Quantum Rig</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container-highest font-label-caps text-label-caps text-secondary uppercase tracking-tight">+120% APY</span>
+</div>
+<span class="font-label-numeric text-label-numeric text-on-surface-variant">750 MH/s • 25,000 JWC</span>
+</div>
+</div>
+<button class="flex-shrink-0 px-space-md py-2 rounded-lg bg-surface-container-highest hover:bg-surface-container-low text-primary-container font-headline-sm text-headline-sm font-semibold active:scale-95 transition-all shadow-sm">
+          Upgrade
+        </button>
+</div>
+<div class="flex items-center justify-between p-space-md rounded-xl bg-surface-container shadow-sm">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary-fixed-dim text-[26px]">hub</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-primary truncate">Solomon Node Cluster</span>
+<span class="px-1.5 py-0.5 rounded-full bg-primary-container/20 font-label-caps text-label-caps text-primary-container uppercase">Whale Node</span>
+</div>
+<span class="font-label-numeric text-label-numeric text-on-surface-variant">2,500 MH/s • 80,000 JWC</span>
+</div>
+</div>
+<button class="flex-shrink-0 px-space-md py-2 rounded-lg bg-primary-container text-on-primary font-headline-sm text-headline-sm font-bold active:scale-95 transition-all shadow-[0_2px_12px_rgba(255,215,0,0.25)]">
+          Deploy
+        </button>
+</div>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-low flex items-center gap-space-md shadow-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary-container text-[20px]">verified_user</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-sm text-body-sm font-semibold text-primary">PoSA Consensual VIP Hash Allocation</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Yield distributions executed hourly via verified BSC smart contract.</span>
+</div>
+</div>
+</div>
+<script>
+  (function initMiningEngine() {
+    const tapZone = document.getElementById('tap-medallion-zone');
+    const particleContainer = document.getElementById('click-particles-container');
+    const totalEl = document.getElementById('live-total-counter');
+    const unclaimedEl = document.getElementById('live-unclaimed');
+    const claimBtn = document.getElementById('claim-payout-btn');
+
+    let totalVal = 42891.4829;
+    let unclaimedVal = 384.19;
+
+    setInterval(() => {
+      totalVal += 0.0003;
+      unclaimedVal += 0.0003;
+      if (totalEl) totalEl.textContent = totalVal.toFixed(4);
+      if (unclaimedEl) unclaimedEl.textContent = '+' + unclaimedVal.toFixed(2) + ' JWC';
+    }, 1200);
+
+    if (tapZone && particleContainer) {
+      tapZone.addEventListener('pointerdown', (e) => {
+        totalVal += 0.05;
+        unclaimedVal += 0.05;
+        if (totalEl) totalEl.textContent = totalVal.toFixed(4);
+        if (unclaimedEl) unclaimedEl.textContent = '+' + unclaimedVal.toFixed(2) + ' JWC';
+
+        const rect = tapZone.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const floater = document.createElement('div');
+        floater.className = 'absolute font-label-numeric text-label-numeric font-bold text-primary-container pointer-events-none transform -translate-x-1/2 -translate-y-1/2 select-none transition-all duration-700 ease-out';
+        floater.style.left = x + 'px';
+        floater.style.top = y + 'px';
+        floater.style.opacity = '1';
+        floater.innerText = '+0.05';
+
+        particleContainer.appendChild(floater);
+
+        requestAnimationFrame(() => {
+          floater.style.transform = 'translate(-50%, -48px) scale(1.15)';
+          floater.style.opacity = '0';
+        });
+
+        setTimeout(() => {
+          if (floater.parentNode) floater.parentNode.removeChild(floater);
+        }, 750);
+      });
+    }
+
+    if (claimBtn) {
+      claimBtn.addEventListener('click', () => {
+        unclaimedVal = 0.00;
+        if (unclaimedEl) unclaimedEl.textContent = '+0.00 JWC';
+        claimBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">check_circle</span><span>Cycle Re-initialized!</span>';
+        setTimeout(() => {
+          claimBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">bolt</span><span>Claim 0.00 JWC & Restart</span>';
+        }, 2200);
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-1px_16px_rgba(0,0,0,0.6)]" data-active-classes="text-primary-container font-semibold"><div class="h-16 px-space-md flex items-center justify-around"><a class="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] gap-0.5 text-on-surface-variant transition-colors hover:text-on-surface" data-path="trade-terminal" href="#"><span class="material-symbols-outlined text-[22px]">candlestick_chart</span><span class="font-label-caps text-label-caps tracking-widest uppercase">Trade</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] gap-0.5 transition-colors text-primary-container font-semibold" data-path="cloud-mine" href="#"><span class="material-symbols-outlined text-[22px]">precision_manufacturing</span><span class="font-label-caps text-label-caps tracking-widest uppercase">Mine</span></a><a class="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] gap-0.5 text-on-surface-variant transition-colors hover:text-on-surface" data-path="asset-vault" href="#"><span class="material-symbols-outlined text-[22px]">lock</span><span class="font-label-caps text-label-caps tracking-widest uppercase">Assets</span></a><a class="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] gap-0.5 text-on-surface-variant transition-colors hover:text-on-surface" data-path="vip-earn" href="#"><span class="material-symbols-outlined text-[22px]">diamond</span><span class="font-label-caps text-label-caps tracking-widest uppercase">Earn</span></a></div></nav></body></html>
