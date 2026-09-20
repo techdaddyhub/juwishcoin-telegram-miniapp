@@ -12,7 +12,7 @@ class AppConfig extends ChangeNotifier {
   double passiveYieldPerHour = 34.5;
 
   // Trading & Market Parameters
-  double jwcPriceUsdt = 2.8450;
+  double jwcPriceUsdt = 3.0000;
   double priceChange24h = 18.42;
   double stakingApy = 32.5;
   double referralCommissionPct = 10.0;
