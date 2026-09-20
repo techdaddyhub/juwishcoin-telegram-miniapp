@@ -186,82 +186,78 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
                           children: screens,
                         ),
                       ),
+                      // Bottom Navigation Bar docked inside mobile frame
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppTheme.surfaceCharcoal,
+                          border: Border(
+                            top: BorderSide(
+                              color: AppTheme.goldPrimary.withAlpha(40),
+                              width: 1,
+                            ),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(180),
+                              blurRadius: 16,
+                              offset: const Offset(0, -4),
+                            ),
+                          ],
+                        ),
+                        child: BottomNavigationBar(
+                          currentIndex: _currentIndex,
+                          onTap: (index) {
+                            HapticFeedback.selectionClick();
+                            setState(() => _currentIndex = index);
+                          },
+                          backgroundColor: Colors.transparent,
+                          elevation: 0,
+                          type: BottomNavigationBarType.fixed,
+                          selectedItemColor: AppTheme.goldPrimary,
+                          unselectedItemColor: AppTheme.textMuted,
+                          selectedLabelStyle: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.6,
+                          ),
+                          unselectedLabelStyle: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          items: const [
+                            BottomNavigationBarItem(
+                              icon: Icon(Icons.candlestick_chart_rounded),
+                              activeIcon: Icon(Icons.candlestick_chart_rounded, color: AppTheme.goldPrimary),
+                              label: 'Trade',
+                            ),
+                            BottomNavigationBarItem(
+                              icon: Icon(Icons.stars_rounded),
+                              activeIcon: Icon(Icons.stars_rounded, color: AppTheme.goldPrimary),
+                              label: 'Mine',
+                            ),
+                            BottomNavigationBarItem(
+                              icon: Icon(Icons.account_balance_wallet_rounded),
+                              activeIcon: Icon(Icons.account_balance_wallet_rounded, color: AppTheme.goldPrimary),
+                              label: 'Vault',
+                            ),
+                            BottomNavigationBarItem(
+                              icon: Icon(Icons.military_tech_rounded),
+                              activeIcon: Icon(Icons.military_tech_rounded, color: AppTheme.goldPrimary),
+                              label: 'Earn',
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-      bottomNavigationBar: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppTheme.surfaceCharcoal,
-              border: Border(
-                top: BorderSide(
-                  color: AppTheme.goldPrimary.withAlpha(40),
-                  width: 1,
-                ),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(180),
-                  blurRadius: 16,
-                  offset: const Offset(0, -4),
-                ),
-              ],
-            ),
-            child: BottomNavigationBar(
-              currentIndex: _currentIndex,
-              onTap: (index) {
-                HapticFeedback.selectionClick();
-                setState(() => _currentIndex = index);
-              },
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              type: BottomNavigationBarType.fixed,
-              selectedItemColor: AppTheme.goldPrimary,
-              unselectedItemColor: AppTheme.textMuted,
-              selectedLabelStyle: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.6,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-              ),
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.candlestick_chart_rounded),
-                  activeIcon: Icon(Icons.candlestick_chart_rounded, color: AppTheme.goldPrimary),
-                  label: 'Trade',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.stars_rounded),
-                  activeIcon: Icon(Icons.stars_rounded, color: AppTheme.goldPrimary),
-                  label: 'Mine',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.account_balance_wallet_rounded),
-                  activeIcon: Icon(Icons.account_balance_wallet_rounded, color: AppTheme.goldPrimary),
-                  label: 'Vault',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.military_tech_rounded),
-                  activeIcon: Icon(Icons.military_tech_rounded, color: AppTheme.goldPrimary),
-                  label: 'Earn',
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+        );
+      },
     );
-  },
-);
   }
 }
