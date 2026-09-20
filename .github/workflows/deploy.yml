@@ -27,15 +27,15 @@ jobs:
 
       - name: Setup Flutter Engine
         uses: subosito/flutter-action@v2
-              - name: Compile Optimized Web Release
-        run: flutter build web --release -O4 --no-source-maps --base-href "/juwishcoin-telegram-miniapp/"
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
 
       - name: Compile Optimized Web Release
-        run: |
-          # Detect repo name for base-href if hosted on user.github.io/repo/
-          REPO_NAME="${{ github.event.repository.name }}"
-          echo "Building for repository: $REPO_NAME"
-          flutter build web --release --web-renderer auto -O4 --no-source-maps --base-href "/$REPO_NAME/"
+        run: flutter build web --release -O4 --no-source-maps --base-href "/juwishcoin-telegram-miniapp/"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
