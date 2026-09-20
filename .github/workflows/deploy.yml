@@ -27,12 +27,8 @@ jobs:
 
       - name: Setup Flutter Engine
         uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-
-      - name: Install Dependencies
-        run: flutter pub get
+              - name: Compile Optimized Web Release
+        run: flutter build web --release -O4 --no-source-maps --base-href "/juwishcoin-telegram-miniapp/"
 
       - name: Compile Optimized Web Release
         run: |
