@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
+import '../models/app_config.dart';
 
 class TradingScreen extends StatefulWidget {
   final double jwcBalance;
@@ -18,10 +19,7 @@ class TradingScreen extends StatefulWidget {
 
 class _TradingScreenState extends State<TradingScreen> {
   String _selectedPair = 'JWC / USDT';
-  final List<String> _pairs = ['JWC / USDT', 'JWC / BNB', 'WBNB', 'BTCB'];
-
-  String _selectedTimeframe = '1H';
-  final List<String> _timeframes = ['15m', '1H', '4H', '1D', '1W'];
+  int _selectedTimeframe = 2; // '15M'
 
   bool _isInstantSwap = true;
   String _payToken = 'USDT';
@@ -32,7 +30,7 @@ class _TradingScreenState extends State<TradingScreen> {
   final TextEditingController _payAmountController = TextEditingController(text: '500.00');
   final TextEditingController _receiveAmountController = TextEditingController(text: '175.74');
 
-  final double _currentPrice = 2.8450; // 1 JWC = 2.8450 USDT
+  double get _currentPrice => AppConfig.instance.jwcPriceUsdt; // Dynamic from Admin
   double _slippage = 0.5;
 
   @override
@@ -342,13 +340,13 @@ class _TradingScreenState extends State<TradingScreen> {
                   color: AppTheme.surfaceLow,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.trending_up_rounded, color: AppTheme.emeraldPositive, size: 13),
-                    SizedBox(width: 3),
+                    const Icon(Icons.trending_up_rounded, color: AppTheme.emeraldPositive, size: 13),
+                    const SizedBox(width: 3),
                     Text(
-                      '+18.42%',
-                      style: TextStyle(
+                      '+${AppConfig.instance.priceChange24h.toStringAsFixed(2)}%',
+                      style: const TextStyle(
                         fontFamily: 'JetBrains Mono',
                         color: AppTheme.emeraldPositive,
                         fontSize: 11,

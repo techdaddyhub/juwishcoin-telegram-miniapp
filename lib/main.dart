@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
+import 'models/app_config.dart';
 import 'widgets/vip_header.dart';
 import 'screens/trading_screen.dart';
 import 'screens/mining_screen.dart';
@@ -90,51 +91,107 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       ),
     ];
 
-    return Scaffold(
-      backgroundColor: AppTheme.obsidian,
-      resizeToAvoidBottomInset: true,
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppTheme.obsidian,
-              border: Border.symmetric(
-                vertical: BorderSide(
-                  color: AppTheme.goldPrimary.withAlpha(20),
-                  width: 1,
-                ),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(200),
-                  blurRadius: 30,
-                  spreadRadius: 5,
-                ),
-              ],
-            ),
-            child: SafeArea(
-              bottom: false,
-              child: Column(
-                children: [
-                  // VIP Top Header Bar
-                  VipHeader(
-                    title: _screenTitles[_currentIndex],
-                    jwcBalance: _jwcBalance,
-                  ),
-                  // Current Active Screen
-                  Expanded(
-                    child: IndexedStack(
-                      index: _currentIndex,
-                      children: screens,
+    return ListenableBuilder(
+      listenable: AppConfig.instance,
+      builder: (context, _) {
+        final config = AppConfig.instance;
+
+        return Scaffold(
+          backgroundColor: AppTheme.obsidian,
+          resizeToAvoidBottomInset: true,
+          body: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.obsidian,
+                  border: Border.symmetric(
+                    vertical: BorderSide(
+                      color: AppTheme.goldPrimary.withAlpha(20),
+                      width: 1,
                     ),
                   ),
-                ],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(200),
+                      blurRadius: 30,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: SafeArea(
+                  bottom: false,
+                  child: Column(
+                    children: [
+                      // VIP Top Header Bar
+                      VipHeader(
+                        title: _screenTitles[_currentIndex],
+                        jwcBalance: _jwcBalance,
+                      ),
+                      // Live Global Broadcast Announcement Banner
+                      if (config.isBannerActive && config.broadcastMessage.isNotEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppTheme.goldAmber.withAlpha(45),
+                                AppTheme.goldPrimary.withAlpha(20),
+                              ],
+                            ),
+                            border: Border(
+                              bottom: BorderSide(
+                                color: AppTheme.goldAmber.withAlpha(80),
+                                width: 0.8,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.goldPrimary.withAlpha(40),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.campaign_rounded,
+                                  color: AppTheme.goldPrimary,
+                                  size: 14,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  config.broadcastMessage,
+                                  style: const TextStyle(
+                                    fontFamily: 'Inter',
+                                    color: AppTheme.goldChampagne,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.3,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      // Current Active Screen
+                      Expanded(
+                        child: IndexedStack(
+                          index: _currentIndex,
+                          children: screens,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
       bottomNavigationBar: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 480),
@@ -204,5 +261,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         ),
       ),
     );
+  },
+);
   }
 }

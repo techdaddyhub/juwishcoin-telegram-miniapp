@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
+import '../models/app_config.dart';
 
 class MiningScreen extends StatefulWidget {
   final double initialFarmed;
@@ -22,8 +23,8 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
   late double _totalFarmed;
   double _unclaimedYield = 384.19;
   int _currentEnergy = 940;
-  final int _maxEnergy = 1000;
-  final double _hashrateGhs = 142.8;
+  int get _maxEnergy => AppConfig.instance.maxEnergy;
+  double get _hashrateGhs => AppConfig.instance.baseHashrateGhs;
 
   // Particle tap state
   final List<_TapParticle> _particles = [];
@@ -81,8 +82,9 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
 
     setState(() {
       _currentEnergy = max(0, _currentEnergy - 2);
-      _totalFarmed += 10.0;
-      _unclaimedYield += 10.0;
+      final reward = AppConfig.instance.tapYield;
+      _totalFarmed += reward;
+      _unclaimedYield += reward;
       _coinScale = 0.94;
 
       _particles.add(
@@ -691,14 +693,14 @@ class _ParticleWidgetState extends State<_ParticleWidget> with SingleTickerProvi
           top: widget.particle.position.dy + _animY.value,
           child: Opacity(
             opacity: _animOpacity.value,
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.stars_rounded, color: AppTheme.goldPrimary, size: 16),
-                SizedBox(width: 2),
+                const Icon(Icons.stars_rounded, color: AppTheme.goldPrimary, size: 16),
+                const SizedBox(width: 2),
                 Text(
-                  '+10 JWC',
-                  style: TextStyle(
+                  '+${AppConfig.instance.tapYield.toStringAsFixed(0)} JWC',
+                  style: const TextStyle(
                     fontFamily: 'JetBrains Mono',
                     color: AppTheme.goldChampagne,
                     fontSize: 16,

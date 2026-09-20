@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
+import '../models/app_config.dart';
 
 class AssetsScreen extends StatefulWidget {
   final double jwcBalance;
@@ -67,7 +68,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
           ],
         ),
         content: Text(
-          'Successfully routed $bnb BNB through PancakeSwap V3 (0.05% Pool). Credited +${addedJwc.toStringAsFixed(2)} JWC to your Staking Vault at 32.5% APY.',
+          'Successfully routed $bnb BNB through PancakeSwap V3 (0.05% Pool). Credited +${addedJwc.toStringAsFixed(2)} JWC to your Staking Vault at ${AppConfig.instance.stakingApy.toStringAsFixed(1)}% APY.',
           style: const TextStyle(color: AppTheme.textLight, fontSize: 13, height: 1.4),
         ),
         actions: [
@@ -512,14 +513,14 @@ class _AssetsScreenState extends State<AssetsScreen> {
               borderRadius: BorderRadius.circular(6),
               border: Border.all(color: AppTheme.goldAmber.withAlpha(30)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.lock_clock_rounded, color: AppTheme.goldAmber, size: 14),
-                SizedBox(width: 6),
+                const Icon(Icons.lock_clock_rounded, color: AppTheme.goldAmber, size: 14),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'Direct Auto-Stake: +32.5% APY starts accumulating instantly.',
-                    style: TextStyle(color: AppTheme.goldChampagne, fontSize: 10),
+                    'Direct Auto-Stake: +${AppConfig.instance.stakingApy.toStringAsFixed(1)}% APY starts accumulating instantly.',
+                    style: const TextStyle(color: AppTheme.goldChampagne, fontSize: 10),
                   ),
                 ),
               ],

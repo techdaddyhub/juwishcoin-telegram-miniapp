@@ -103,3 +103,4 @@ if os.path.exists(banner_input):
     print("   ✓ Generated botfather_demo_preview.gif (640x360)")
 
 print("\nAll Telegram preview assets successfully generated in:", OUTPUT_DIR)
+
