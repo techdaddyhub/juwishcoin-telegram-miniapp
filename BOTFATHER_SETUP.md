@@ -12,10 +12,9 @@ To balance low-latency initial load times on mobile 3G/4G connections with smoot
 
 ```bash
 flutter build web --release \
-  --web-renderer auto \
   -O4 \
   --no-source-maps \
-  --base-href "/"
+  --base-href "/juwishcoin-telegram-miniapp/"
 ```
 
 ### 1.2 Renderer Flags Analysis for Telegram Mini Apps
