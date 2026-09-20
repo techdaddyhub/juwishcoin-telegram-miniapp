@@ -230,7 +230,7 @@ class _AdminScreenState extends State<AdminScreen> {
               ),
               Switch(
                 value: _bannerActive,
-                activeColor: AppTheme.goldPrimary,
+                activeThumbColor: AppTheme.goldPrimary,
                 onChanged: (val) => setState(() => _bannerActive = val),
               ),
             ],
@@ -453,3 +453,4 @@ class _TelemetryStat extends StatelessWidget {
     );
   }
 }
+

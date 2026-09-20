@@ -19,7 +19,10 @@ class TradingScreen extends StatefulWidget {
 
 class _TradingScreenState extends State<TradingScreen> {
   String _selectedPair = 'JWC / USDT';
-  int _selectedTimeframe = 2; // '15M'
+  final List<String> _pairs = ['JWC / USDT', 'JWC / BNB', 'WBNB', 'BTCB'];
+
+  String _selectedTimeframe = '1H';
+  final List<String> _timeframes = ['15m', '1H', '4H', '1D', '1W'];
 
   bool _isInstantSwap = true;
   String _payToken = 'USDT';

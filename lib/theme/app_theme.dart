@@ -22,6 +22,7 @@ class AppTheme {
 
   static const Color emeraldPositive = Color(0xFF00E676);
   static const Color crimsonNegative = Color(0xFFFF4D4D);
+  static const Color rubyNegative = Color(0xFFFF4D4D);
 
   // Reusable Luxury Linear Gradients
   static const LinearGradient goldGradient = LinearGradient(
