@@ -316,7 +316,7 @@ def create_guide():
     add_bullet("What is JuwishCoin ($JWC), BNB Smart Chain BEP-20 architecture, and token specifications.", "1. Executive Summary & Token Architecture:")
     add_bullet("How beginners can launch the app, start mining, and earn tokens in under 60 seconds.", "2. Quick-Start Guide for Beginners:")
     add_bullet("Active Tap-to-Mine, 1,000 Energy bar, 142.8 GH/s Cloud Hashrate, and 34.5 JWC/hr passive yield.", "3. Mining Mechanics (Tap & Cloud Rigs):")
-    add_bullet("Compounding passive wealth, multi-token deposits, 0% vault fee, and +32.5% APY rewards.", "4. VIP Staking Vault (+32.5% APY):")
+    add_bullet("Fixed lock terms (7D to 90D), 5 to 500 JWC limits, sustainable APY (12% to 28%), and capital preservation.", "4. VIP Staking Vault (5 - 500 JWC • 7+ Days):")
     add_bullet("Order book, live Candlestick charts, buying JWC, and selling JWC at $3.00 on PancakeSwap V3.", "5. DEX Trading Terminal & $3.00 Cash-Out:")
     add_bullet("Multi-asset balances and instant zero-fee transfers via Telegram @username or BSC address.", "6. Assets Portfolio & P2P Escrow Transfers:")
     add_bullet("7-day login streak calendar, social bounty tasks, and 10% lifetime VIP referral commissions.", "7. Earn Hub, Daily Streaks & Referrals:")
@@ -337,7 +337,7 @@ def create_guide():
     )
     
     add_p(
-        "The application integrates an interactive Tap-to-Mine game, an automated 24/7 Virtual Cloud Mining rig, a high-yield VIP Staking Vault (+32.5% APY), "
+        "The application integrates an interactive Tap-to-Mine game, an automated 24/7 Virtual Cloud Mining rig, a capital-preserving VIP Staking Vault (5 - 500 JWC, 7+ days), "
         "an institutional-grade DEX Trading Terminal with real-time candlestick charts, instant zero-fee Peer-to-Peer (P2P) transfers, and a multi-tier VIP referral program."
     )
 
@@ -422,34 +422,36 @@ def create_guide():
     add_image("telegram_assets/screenshot_2_mining.png", width="12.0cm", height="6.75cm")
 
     # =============================================================
-    # CHAPTER 4: STAKING MECHANICS (VIP VAULT +32.5% APY)
+    # CHAPTER 4: STAKING MECHANICS (VIP VAULT: 5 - 500 JWC • 7+ DAYS)
     # =============================================================
-    doc.text.addElement(H(outlinelevel=1, stylename="ChapterHeading", text="4. VIP Staking Vault: High-Yield Compounding (+32.5% APY)"))
+    doc.text.addElement(H(outlinelevel=1, stylename="ChapterHeading", text="4. VIP Staking Vault: Capital Preservation (5 - 500 JWC • 7+ Days)"))
 
     add_p(
-        "The VIP Staking Vault is the wealth preservation engine of the JuwishCoin ecosystem. "
-        "By staking your mined or purchased JWC tokens into the vault, you contribute to ecosystem liquidity stability and earn "
-        "an industry-leading +32.5% Annual Percentage Yield (APY)."
+        "The VIP Staking Vault is engineered with a strict mathematical model to guarantee sustainability, capital preservation, "
+        "and platform treasury growth. Rather than deploying unsustainable hyper-inflationary emissions that deplete liquidity reserves, "
+        "JuwishCoin sets bounded stake limits (minimum 5 JWC to maximum 500 JWC) and fixed lock durations starting from 7 days and above. "
+        "This design contracts liquid circulating supply, stabilizes token market depth, and funds yields purely through DEX trading fee revenue."
     )
 
-    doc.text.addElement(H(outlinelevel=2, stylename="SectionHeading", text="Key Staking Vault Highlights"))
-    add_bullet("+32.5% Annual Percentage Yield calculated on daily compounding cycles.", "Dynamic High Yield:")
-    add_bullet("Stake directly from your mined balance or deposit external BNB, USDT, BUSD, or WBNB.", "Multi-Token Auto-Deposit:")
-    add_bullet("Deposits made via BNB or USDT are automatically converted to JWC via PancakeSwap V3 and staked instantly.", "Atomic Liquidity Gateway:")
-    add_bullet("JuwishCoin charges zero deposit tax or vault management fees for stakers.", "0% Vault Fee:")
-    add_bullet("Harvest your earned staking rewards anytime directly back to your liquid portfolio.", "Flexible Harvesting:")
+    doc.text.addElement(H(outlinelevel=2, stylename="SectionHeading", text="VIP Vault Architecture & Rules"))
+    add_bullet("Minimum stake is 5.0 JWC ($15.00 USD) and maximum cap is 500.0 JWC ($1,500.00 USD) per position to prevent whale monopolization.", "Strict Stake Bounds (5 - 500 JWC):")
+    add_bullet("Lock terms start at 7 days and extend up to 90 days (7D, 14D, 30D, 60D, 90D). Early withdrawal is prohibited to safeguard market depth.", "Mandatory Lock Tiers (7+ Days):")
+    add_bullet("Sustainable yields from 12.0% to 28.0% APY ensure long-term treasury solvency while rewarding committed long-term stakers.", "Platform-Safe APY Returns:")
+    add_bullet("Total protocol staking yields are matched to DEX swap fee collections so the platform reserves remain perpetually solvent and gain value.", "Treasury Protection Guarantee:")
+    add_bullet("Live countdown timers monitor each position; upon maturity, stakers harvest their principal and earned rewards in 1 tap.", "Maturity Harvesting:")
 
     add_table_3col([
-        ("Staking 1,000 JWC", "+325.0 JWC / Year", "$975.00 USDT Annual Yield (@ $3.00)"),
-        ("Staking 5,000 JWC", "+1,625.0 JWC / Year", "$4,875.00 USDT Annual Yield (@ $3.00)"),
-        ("Staking 20,000 JWC", "+6,500.0 JWC / Year", "$19,500.00 USDT Annual Yield (@ $3.00)"),
-        ("Staking 100,000 JWC", "+32,500.0 JWC / Year", "$97,500.00 USDT Annual Yield (@ $3.00)"),
-    ], headers=("Staked Principal", "Estimated Annual Reward (+32.5% APY)", "Valuation at $3.00 Target"))
+        ("7 Days Lock (12.0% APY)", "0.230% Total ROI", "+1.151 JWC ($3.45 USDT) on 500 JWC Max"),
+        ("14 Days Lock (15.0% APY)", "0.575% Total ROI", "+2.877 JWC ($8.63 USDT) on 500 JWC Max"),
+        ("30 Days Lock (18.5% APY)", "1.521% Total ROI", "+7.603 JWC ($22.81 USDT) on 500 JWC Max"),
+        ("60 Days Lock (22.0% APY)", "3.616% Total ROI", "+18.082 JWC ($54.25 USDT) on 500 JWC Max"),
+        ("90 Days Lock (28.0% APY)", "6.904% Total ROI", "+34.521 JWC ($103.56 USDT) on 500 JWC Max"),
+    ], headers=("Lock Tier & APY Rate", "Total Cycle ROI", "Estimated Yield at $3.00 (500 JWC Max)"))
 
     add_callout(
-        "Staking rewards are paid out in native JWC tokens. When combined with the $3.00 trading target, stakers benefit "
-        "both from token quantity growth and token valuation appreciation.",
-        title="STAKER ADVANTAGE:"
+        "SUSTAINABILITY COMMITMENT: By locking up to 500 JWC ($1,500 USD) per user for 7+ days, the platform removes tokens "
+        "from market circulation, stabilizing the $3.00 price floor while paying manageable yields easily covered by DEX trading volume fees.",
+        title="PLATFORM SOLVENCY ASSURANCE:"
     )
 
     # =============================================================
@@ -610,7 +612,7 @@ def create_guide():
     add_bullet("To safeguard genuine miners and prevent bot farms, users deposit or buy at least 5 JWC ($15.00 USDT) once. This permanently unlocks tap mining (+10 JWC/tap) and 24/7 cloud rigs (34.5 JWC/hr).", "Q1: How do I start mining JuwishCoin?")
     add_bullet("0xfEEEF79d2A97d9e1f9bcB8eBA8FD9587079C9e99 on BNB Smart Chain.", "Q2: What is the official contract address?")
     add_bullet("The default baseline trading rate is initialized at $3.0000 USDT per JWC, available on the internal Trade terminal and PancakeSwap V3.", "Q3: At what price can I trade or sell JWC?")
-    add_bullet("Staked tokens earn an annual return of +32.5%, compounded daily and harvestable whenever you choose.", "Q4: How does the +32.5% APY Staking Vault work?")
+    add_bullet("Users can lock between 5 and 500 JWC for 7+ days (up to 90D) earning 12% to 28% APY. The vault preserves platform solvency while rewarding loyal holders.", "Q4: How does the Staking Vault work (5 - 500 JWC • 7+ Days)?")
     add_bullet("Yes. Using the P2P transfer protocol on the Assets screen, you can send tokens instantly to any Telegram @username or BSC wallet address with zero fees.", "Q5: Can I transfer JWC to friends?")
     add_bullet("You earn a 10% lifetime commission on every token your referred friends mine or earn in the app.", "Q6: How does the referral program reward me?")
 

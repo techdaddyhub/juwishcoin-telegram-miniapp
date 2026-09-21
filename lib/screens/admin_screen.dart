@@ -567,6 +567,34 @@ class _AdminScreenState extends State<AdminScreen> {
             onChanged: (val) => setState(() => _stakingApy = val),
           ),
 
+          // Staking Security Envelope Info
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceLowest,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.white12),
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.verified_user_rounded, color: AppTheme.goldPrimary, size: 14),
+                    SizedBox(width: 6),
+                    Text('VIP Vault Capital Preservation Rules', style: TextStyle(color: AppTheme.goldChampagne, fontSize: 11, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                SizedBox(height: 4),
+                Text(
+                  '• Minimum Stake: 5.0 JWC (Blocks micro-spam dust)\n• Maximum Stake Cap: 500.0 JWC (Prevents whale dilution)\n• Minimum Lock Duration: 7 Days (Guarantees liquidity retention)',
+                  style: TextStyle(color: AppTheme.textMuted, fontSize: 10, height: 1.4),
+                ),
+              ],
+            ),
+          ),
+
           // Referral Commission
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

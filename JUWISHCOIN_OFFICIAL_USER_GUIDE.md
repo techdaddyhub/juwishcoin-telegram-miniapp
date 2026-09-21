@@ -21,19 +21,25 @@
 1. [Executive Summary & Token Architecture](#1-executive-summary--token-architecture)
 2. [Quick-Start Guide for Beginners](#2-quick-start-guide-for-beginners)
 3. [How Mining Works (Tap & Offline Cloud Rigs)](#3-how-mining-works-tap--offline-cloud-rigs)
-4. [How Staking Works (VIP Vault & +32.5% APY)](#4-how-staking-works-vip-vault---325-apy)
-5. [How Trading Works (DEX Terminal & $3.00 Cash-Out)](#5-how-trading-works-dex-terminal---300-cash-out)
-6. [Assets Portfolio & Zero-Fee P2P Transfer Escrow](#6-assets-portfolio--zero-fee-p2p-transfer-escrow)
-7. [Earn Hub, Daily Streaks & VIP Referral Program](#7-earn-hub-daily-streaks--vip-referral-program)
-8. [Web3 Wallet Setup (MetaMask & Trust Wallet Guide)](#8-web3-wallet-setup-metamask--trust-wallet-guide)
-9. [Security, Anti-Cheat & Contract Transparency](#9-security-anti-cheat--contract-transparency)
+4. [How Staking Works (VIP Fixed Vault: 5 - 500 JWC • 7+ Days)](#4-how-staking-works-vip-fixed-vault-5---500-jwc--7-days)
+5. [DEX Trading Terminal & $3.00 Cash-Out](#5-dex-trading-terminal--300-cash-out)
+6. [Assets Portfolio & P2P Escrow Transfers](#6-assets-portfolio--p2p-escrow-transfers)
+7. [Earn Hub, Daily Streaks & Referrals](#7-earn-hub-daily-streaks--referrals)
+8. [Connecting External Web3 Wallets (MetaMask / Trust Wallet)](#8-connecting-external-web3-wallets-metamask--trust-wallet)
+9. [Security, Anti-Cheat & Fair Play](#9-security-anti-cheat--fair-play)
 10. [Frequently Asked Questions (FAQ)](#10-frequently-asked-questions-faq)
 
 ---
 
-## 1. Executive Summary & Token Architecture
+## 1. Executive Summary & Ecosystem Overview
 
-**JuwishCoin ($JWC)** is a decentralized cryptocurrency ecosystem deployed natively on the **BNB Smart Chain (BSC)** as a BEP-20 token. Designed specifically for Telegram's global audience of 900+ million users, JuwishCoin removes all technical barriers to entry. Users can extract tokens through cloud mining, compound their earnings via automated staking vaults, trade on institutional DEX order books, and make instant off-chain transfers to friends without leaving Telegram.
+**JuwishCoin ($JWC)** is a next-generation decentralized financial ecosystem deployed on the **BNB Smart Chain (BSC)**. Built natively inside the Telegram ecosystem, it eliminates the onboarding friction of Web3 by allowing anyone to mine, stake, and trade crypto right inside the Telegram messaging app.
+
+### Core Ecosystem Pillars:
+1. **Interactive Tap-to-Mine:** Earn JWC tokens through touch mining with energy regeneration.
+2. **24/7 Virtual Cloud Mining:** Automated background mining rig generating steady passive tokens.
+3. **Institutional DEX Terminal:** Real-time Candlestick charts, order book, market depth, and atomic trade execution target price at **$3.0000 USDT**.
+4. **Stake for Passive Growth:** Deposit between 5 and 500 JWC into the **VIP Staking Vault** for 7+ days to earn sustainable yield (12% to 28% APY).
 
 ### Why BNB Smart Chain (BSC)?
 * **Lightning Speed:** 3-second block finality ensures all token transactions settle near-instantaneously.
@@ -49,7 +55,7 @@ Getting started with JuwishCoin requires zero initial deposit and takes less tha
 1. **Launch the Bot:** Open Telegram and start the official bot (`@juwishcoin_bot`). Tap **"Launch App"**.
 2. **Activate & Mine Tokens:** Head to the **Mine** tab. Deposit or buy at least **5 JWC** (approx. **$15.00 USDT**) to unlock your node. Once unlocked, tap the 3D Gold Medallion (+10 JWC/tap) and enjoy 24/7 passive cloud mining.
 3. **Claim Daily Streak:** Go to the **Earn** tab and claim your Day 1 reward (+50 JWC). Keep logging in daily for progressive multipliers up to +3,000 JWC.
-4. **Stake for Passive Growth:** Deposit your tokens into the **VIP Staking Vault** to accumulate **+32.5% APY** compounding interest.
+4. **Stake for Passive Growth:** Deposit between 5 and 500 JWC into the **VIP Staking Vault** for 7+ days to accumulate sustainable compounding yield.
 5. **Trade & Cash Out:** Visit the **Trade** tab to swap your tokens directly for USDT at the **$3.00** rate or trade via PancakeSwap V3.
 
 ---
@@ -95,23 +101,30 @@ Before a user can begin tapping or earning passive cloud rig yield, they must bu
 
 ---
 
-## 4. How Staking Works (VIP Vault & +32.5% APY)
+## 4. How Staking Works (VIP Fixed Vault: 5 - 500 JWC • 7+ Days)
 
-The **VIP Staking Vault** is designed for wealth preservation and exponential compounding. Staking locks tokens into ecosystem liquidity pools, earning stakers a steady passive income.
+The **VIP Staking Vault** is the capital preservation and wealth accumulation engine of the JuwishCoin ecosystem. By locking tokens into verified liquidity reserves, users earn stable, guaranteed returns while actively strengthening the token's circulating supply dynamics.
 
-### Staking Highlights
-* **High APY:** Generates **+32.5% Annual Percentage Yield** calculated on continuous daily compounding.
-* **0% Vault Deposit Fee:** JuwishCoin charges zero deposit tax or entrance fees.
-* **1-Click Auto-Buy & Stake via PancakeSwap V3:** Deposit external BNB, USDT, BUSD, or WBNB directly into the vault. The system automatically routes through PancakeSwap V3 and stakes the acquired JWC in a single atomic transaction.
-* **Flexible Rewards:** Harvest your earned staking yield anytime directly back to your liquid balance.
+### 🛡️ Sustainable Staking Rules & Anti-Drain Architecture
+To ensure the platform **never bleeds assets**, prevents whale manipulation, and guarantees that both stakers and the ecosystem treasury gain value over time, JuwishCoin enforces calibrated staking limits:
+* **Minimum Stake:** **5.0 JWC** (Blocks micro-spam and bot dust attacks).
+* **Maximum Stake Cap:** **500.0 JWC** per position (Prevents hyper-concentrated whale dumps).
+* **Lock Duration:** **7 Days and Above** (7, 14, 30, 60, and 90-Day fixed lock tiers).
+* **Mathematical ROI Calibration:** The yields are funded through PancakeSwap V3 swap transaction fees (0.05% - 0.25%). Locking 500 JWC ($1,500 USD) for 7 days only requires a platform payout of ~1.15 JWC ($3.45), while preserving $1,500 of locked TVL that stabilizes the token price!
 
-### Staking Compounding Projection Table
-| Staked Principal | Estimated Annual Yield (+32.5% APY) | Value at $3.00 Target |
-| :--- | :--- | :--- |
-| **1,000 JWC** | +325.0 JWC / Year | **$975.00 USDT** |
-| **5,000 JWC** | +1,625.0 JWC / Year | **$4,875.00 USDT** |
-| **20,000 JWC** | +6,500.0 JWC / Year | **$19,500.00 USDT** |
-| **100,000 JWC** | +32,500.0 JWC / Year | **$97,500.00 USDT** |
+### Staking Lock Tiers & Return of Investment (ROI) Table
+| Lock Duration | Annualized APY | Total Maturity Return (ROI) | Example: 50 JWC Staked | Example: 500 JWC Staked (Max) |
+| :--- | :--- | :--- | :--- | :--- |
+| **7 Days (Min)** | **12.0% APY** | **~0.230%** | +0.115 JWC ($0.35) | **+1.151 JWC ($3.45 USD)** |
+| **14 Days** | **15.0% APY** | **~0.575%** | +0.288 JWC ($0.86) | **+2.877 JWC ($8.63 USD)** |
+| **30 Days** | **18.5% APY** | **~1.521%** | +0.760 JWC ($2.28) | **+7.603 JWC ($22.81 USD)** |
+| **60 Days** | **22.0% APY** | **~3.616%** | +1.808 JWC ($5.42) | **+18.082 JWC ($54.25 USD)** |
+| **90 Days (Max)**| **28.0% APY** | **~6.904%** | +3.452 JWC ($10.36) | **+34.521 JWC ($103.56 USD)** |
+
+### How the Platform & Stakers Both Win
+1. **For Stakers:** High, reliable returns (12% to 28% APY) beating all traditional banks and mainstream stablecoin yields.
+2. **For the Platform:** 100% of user principal stays locked in vault liquidity. The modest, sustainable payout is easily funded by DEX volume fees. Token price volatility is minimized, and platform TVL expands sustainably.
+3. **Maturity & Harvesting:** Once the lock period expires, stakers can harvest their principal plus accumulated yield in 1 tap back to their liquid balance!
 
 ---
 
@@ -222,8 +235,8 @@ To protect genuine users and block automated bot farms, users simply deposit or 
 **Q3: At what price can I sell my JuwishCoin?**  
 The baseline trading rate is initialized at **$3.0000 USDT** per JWC on the Trade terminal and PancakeSwap V3.
 
-**Q4: How does the +32.5% APY Staking Vault work?**  
-Deposited tokens earn +32.5% annual return, compounded daily and harvestable whenever you choose with 0% deposit fee.
+**Q4: How does the Staking Vault work (5 - 500 JWC • 7+ Days)?**  
+Users can stake between **5 JWC and 500 JWC** for lock terms of **7 days and above** (7D, 14D, 30D, 60D, 90D). APY yields range from **12.0% to 28.0%**. This math ensures long-term ecosystem stability, preventing runaway inflation while safely rewarding committed token holders.
 
 **Q5: Can I transfer JWC to friends inside Telegram?**  
 Yes! Use the P2P transfer protocol on the Assets screen to send tokens instantly using their Telegram `@username` or BSC address with 0 gas fee.

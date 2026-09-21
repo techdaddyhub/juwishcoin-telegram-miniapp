@@ -46,10 +46,80 @@ class AppConfig extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Staking Parameters (5 JWC min, 500 JWC max, 7+ days duration)
+  double minStakeAmountJwc = 5.0;
+  double maxStakeAmountJwc = 500.0;
+  int minLockDays = 7;
+
+  // Sustainable Tier APYs (Carefully calculated so platform preserves treasury while rewarding stakers)
+  final Map<int, double> stakingTiersApy = {
+    7: 12.0,   // 7 Days Lock:  12.0% APY (~0.230% ROI)
+    14: 15.0,  // 14 Days Lock: 15.0% APY (~0.575% ROI)
+    30: 18.5,  // 30 Days Lock: 18.5% APY (~1.521% ROI)
+    60: 22.0,  // 60 Days Lock: 22.0% APY (~3.616% ROI)
+    90: 28.0,  // 90 Days Lock: 28.0% APY (~6.904% ROI)
+  };
+
+  final List<StakedPosition> stakedPositions = [
+    StakedPosition(
+      id: 'stake_demo_1',
+      amount: 150.0,
+      lockDays: 14,
+      apy: 15.0,
+      expectedYield: (150.0 * 0.15 * (14 / 365)),
+      startDate: DateTime.now().subtract(const Duration(days: 6)),
+      unlockDate: DateTime.now().add(const Duration(days: 8)),
+    ),
+  ];
+
+  double get totalStakedJwc =>
+      stakedPositions.where((p) => !p.isClaimed).fold(0.0, (acc, p) => acc + p.amount);
+
+  double get totalEstimatedStakingYield =>
+      stakedPositions.where((p) => !p.isClaimed).fold(0.0, (acc, p) => acc + p.expectedYield);
+
+  double calculateStakingYield(double amount, int lockDays) {
+    final apy = stakingTiersApy[lockDays] ?? 12.0;
+    return amount * (apy / 100.0) * (lockDays / 365.0);
+  }
+
+  StakedPosition? createStake(double amount, int lockDays) {
+    if (amount < minStakeAmountJwc || amount > maxStakeAmountJwc) return null;
+    if (lockDays < minLockDays) return null;
+
+    final apy = stakingTiersApy[lockDays] ?? 12.0;
+    final expectedYield = calculateStakingYield(amount, lockDays);
+    final now = DateTime.now();
+
+    final position = StakedPosition(
+      id: 'stake_${now.millisecondsSinceEpoch}',
+      amount: amount,
+      lockDays: lockDays,
+      apy: apy,
+      expectedYield: expectedYield,
+      startDate: now,
+      unlockDate: now.add(Duration(days: lockDays)),
+    );
+
+    stakedPositions.insert(0, position);
+    notifyListeners();
+    return position;
+  }
+
+  bool harvestStake(String id) {
+    final index = stakedPositions.indexWhere((p) => p.id == id);
+    if (index == -1) return false;
+    final pos = stakedPositions[index];
+    if (pos.isClaimed) return false;
+    pos.isClaimed = true;
+    notifyListeners();
+    return true;
+  }
+
   // Trading & Market Parameters
   double jwcPriceUsdt = 3.0000;
   double priceChange24h = 18.42;
-  double stakingApy = 32.5;
+  double stakingApy = 18.5; // Average baseline staking APY
   double referralCommissionPct = 10.0;
 
   // Official BEP-20 Smart Contract on BNB Smart Chain
@@ -101,5 +171,31 @@ class AppConfig extends ChangeNotifier {
     broadcastMessage = message;
     notifyListeners();
   }
+}
+
+class StakedPosition {
+  final String id;
+  final double amount;
+  final int lockDays;
+  final double apy;
+  final double expectedYield;
+  final DateTime startDate;
+  final DateTime unlockDate;
+  bool isClaimed;
+
+  StakedPosition({
+    required this.id,
+    required this.amount,
+    required this.lockDays,
+    required this.apy,
+    required this.expectedYield,
+    required this.startDate,
+    required this.unlockDate,
+    this.isClaimed = false,
+  });
+
+  bool get isMatured => DateTime.now().isAfter(unlockDate);
+  int get remainingDays =>
+      isMatured ? 0 : unlockDate.difference(DateTime.now()).inDays + 1;
 }
 
