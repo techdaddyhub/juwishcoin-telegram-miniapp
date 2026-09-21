@@ -368,7 +368,7 @@ def create_guide():
     add_p("Getting started with JuwishCoin requires zero initial deposit and takes less than a minute. Follow these 5 essential steps:")
 
     add_bullet("Launch the JuwishCoin Mini App inside Telegram via the official bot link (@juwishcoin_bot).", "Step 1: Open the Mini App.")
-    add_bullet("Head to the Mine tab and tap the 3D Gold Medallion. Each tap extracts 10.0 JWC instantly until your 1,000 Energy bar is depleted.", "Step 2: Start Mining Immediately.")
+    add_bullet("Head to the Mine tab. Activate your cloud rig and tap nodes by depositing or buying at least 5 JWC ($15.00 USDT). Once unlocked, tap to mine (+10 JWC) and earn 24/7 passive cloud rewards.", "Step 2: Activate Node & Start Mining.")
     add_bullet("Navigate to the Earn tab to claim your Day 1 streak bonus (+50 JWC) and complete quick social bounties for extra tokens.", "Step 3: Collect Daily Streak & Bounties.")
     add_bullet("Move your mined tokens into the VIP Vault to start compounding interest at +32.5% APY with zero deposit fees.", "Step 4: Stake in the VIP Vault.")
     add_bullet("Open the Trade terminal to swap your mined JWC directly for USDT at the $3.00 rate or execute on PancakeSwap V3.", "Step 5: Trade or Cash Out at $3.00.")
@@ -384,6 +384,15 @@ def create_guide():
         "JuwishCoin employs a hybrid dual-mining engine designed to reward both active participants and passive holders. "
         "Users can extract tokens actively through high-frequency tapping or passively through virtual cloud ASIC rigs."
     )
+
+    doc.text.addElement(H(outlinelevel=2, stylename="SectionHeading", text="Mining Activation Gate (Anti-Sybil & Bot Protection)"))
+    add_p(
+        "To protect genuine community members and eliminate malicious multi-account botfarms, JuwishCoin enforces an anti-sybil "
+        "activation requirement before mining begins: users must buy or deposit at least 5 JWC (approx. $15.00 USDT at the $3.00 price)."
+    )
+    add_bullet("Shields community tokenomics from automated scripts draining pool rewards.", "Anti-Bot Defense:")
+    add_bullet("Once 5 JWC is deposited or purchased, your 142.8 GH/s cloud rig and tap nodes are unlocked for life.", "Permanent Node Activation:")
+    add_bullet("(1) Instant In-App Activate, (2) Trade Terminal swap, (3) Direct BEP-20 deposit, or (4) PancakeSwap V3 purchase.", "Four Flexible Channels:")
 
     doc.text.addElement(H(outlinelevel=2, stylename="SectionHeading", text="Pillar A: Active Tap-to-Mine System"))
     add_bullet("Tap Yield: Every single tap on the digital gold medallion extracts exactly 10.0 JWC tokens.", "Base Extraction Rate:")
@@ -401,6 +410,7 @@ def create_guide():
     add_bullet("1-Tap Claim: Accumulated offline mining rewards can be harvested directly into your main wallet with a single button tap.", "Harvest Mechanism:")
 
     add_table_2col([
+        ("Mining Activation Gate", "5.0 JWC Deposit or Purchase (One-time unlock)"),
         ("Max Active Energy", "1,000 Points"),
         ("Active Tap Reward", "+10.0 JWC / Tap"),
         ("Full Energy Tap Yield", "1,000 JWC per full energy cycle"),
@@ -597,7 +607,7 @@ def create_guide():
 
     doc.text.addElement(H(outlinelevel=2, stylename="SectionHeading", text="Frequently Asked Questions"))
 
-    add_bullet("Yes! Anyone with a Telegram account can join, tap to mine, claim daily streaks, and earn JWC completely free.", "Q1: Is JuwishCoin free to mine?")
+    add_bullet("To safeguard genuine miners and prevent bot farms, users deposit or buy at least 5 JWC ($15.00 USDT) once. This permanently unlocks tap mining (+10 JWC/tap) and 24/7 cloud rigs (34.5 JWC/hr).", "Q1: How do I start mining JuwishCoin?")
     add_bullet("0xfEEEF79d2A97d9e1f9bcB8eBA8FD9587079C9e99 on BNB Smart Chain.", "Q2: What is the official contract address?")
     add_bullet("The default baseline trading rate is initialized at $3.0000 USDT per JWC, available on the internal Trade terminal and PancakeSwap V3.", "Q3: At what price can I trade or sell JWC?")
     add_bullet("Staked tokens earn an annual return of +32.5%, compounded daily and harvestable whenever you choose.", "Q4: How does the +32.5% APY Staking Vault work?")

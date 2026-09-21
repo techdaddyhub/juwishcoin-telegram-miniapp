@@ -57,6 +57,9 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     setState(() {
       _jwcBalance += deltaJwc;
     });
+    if (deltaJwc > 0) {
+      AppConfig.instance.recordDepositOrPurchase(deltaJwc);
+    }
   }
 
   void _onYieldClaimed(double deltaJwc) {
@@ -69,6 +72,9 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     setState(() {
       _jwcBalance += deltaJwc;
     });
+    if (deltaJwc > 0) {
+      AppConfig.instance.recordDepositOrPurchase(deltaJwc);
+    }
   }
 
   @override
@@ -80,6 +86,13 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       ),
       MiningScreen(
         onYieldClaimed: _onYieldClaimed,
+        onNavigateToTab: (index) => setState(() => _currentIndex = index),
+        onDirectActivationPurchase: (jwcAmount) {
+          setState(() {
+            _jwcBalance += jwcAmount;
+          });
+          AppConfig.instance.recordDepositOrPurchase(jwcAmount);
+        },
       ),
       AssetsScreen(
         jwcBalance: _jwcBalance,

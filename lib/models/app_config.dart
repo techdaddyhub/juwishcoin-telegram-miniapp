@@ -11,6 +11,41 @@ class AppConfig extends ChangeNotifier {
   double baseHashrateGhs = 142.8;
   double passiveYieldPerHour = 34.5;
 
+  // Mining Activation Gate (Requires 5 JWC deposit/purchase to start mining)
+  bool isMiningActivationRequired = true;
+  double activationThresholdJwc = 5.0;
+  bool isMiningUnlocked = false;
+  double userDepositedJwc = 0.0;
+
+  bool get canUserMine => !isMiningActivationRequired || isMiningUnlocked;
+
+  void recordDepositOrPurchase(double amountJwc) {
+    userDepositedJwc += amountJwc;
+    if (userDepositedJwc >= activationThresholdJwc) {
+      isMiningUnlocked = true;
+    }
+    notifyListeners();
+  }
+
+  void unlockMiningDirectly() {
+    isMiningUnlocked = true;
+    if (userDepositedJwc < activationThresholdJwc) {
+      userDepositedJwc = activationThresholdJwc;
+    }
+    notifyListeners();
+  }
+
+  void updateMiningGateSettings({
+    bool? required,
+    double? threshold,
+    bool? unlocked,
+  }) {
+    if (required != null) isMiningActivationRequired = required;
+    if (threshold != null) activationThresholdJwc = threshold;
+    if (unlocked != null) isMiningUnlocked = unlocked;
+    notifyListeners();
+  }
+
   // Trading & Market Parameters
   double jwcPriceUsdt = 3.0000;
   double priceChange24h = 18.42;

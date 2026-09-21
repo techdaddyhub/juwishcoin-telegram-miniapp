@@ -47,7 +47,7 @@
 Getting started with JuwishCoin requires zero initial deposit and takes less than 60 seconds:
 
 1. **Launch the Bot:** Open Telegram and start the official bot (`@juwishcoin_bot`). Tap **"Launch App"**.
-2. **Mine Free Tokens:** Head to the **Mine** tab and tap the 3D Gold Medallion. Each tap earns **+10.0 JWC**.
+2. **Activate & Mine Tokens:** Head to the **Mine** tab. Deposit or buy at least **5 JWC** (approx. **$15.00 USDT**) to unlock your node. Once unlocked, tap the 3D Gold Medallion (+10 JWC/tap) and enjoy 24/7 passive cloud mining.
 3. **Claim Daily Streak:** Go to the **Earn** tab and claim your Day 1 reward (+50 JWC). Keep logging in daily for progressive multipliers up to +3,000 JWC.
 4. **Stake for Passive Growth:** Deposit your tokens into the **VIP Staking Vault** to accumulate **+32.5% APY** compounding interest.
 5. **Trade & Cash Out:** Visit the **Trade** tab to swap your tokens directly for USDT at the **$3.00** rate or trade via PancakeSwap V3.
@@ -57,6 +57,20 @@ Getting started with JuwishCoin requires zero initial deposit and takes less tha
 ## 3. How Mining Works (Tap & Offline Cloud Rigs)
 
 JuwishCoin features a **Dual-Engine Mining Architecture** that rewards both active screen engagement and passive offline holding.
+
+### 🛡️ Mining Activation Gate (Anti-Sybil & Bot Protection)
+Before a user can begin tapping or earning passive cloud rig yield, they must buy or deposit at least **5 JWC** (approx. **$15.00 USDT** at the $3.00 benchmark price).
+
+**Why is this required?**
+1. **Anti-Sybil & Bot Protection:** Prevents automated bot farms from creating millions of dummy accounts to siphon tokens.
+2. **Network Security & Decentralization:** Ensures that all active miners are verified token holders with genuine skin in the game.
+3. **Immediate Full Access:** Unlocks both interactive tap-to-earn and 24/7 cloud rig accumulation permanently.
+
+**4 Ways to Activate Your Mining Rig:**
+* **Instant In-App Activation:** Tap the locked gold medallion and choose *'INSTANT ACTIVATE (Buy 5 JWC)'*.
+* **Trade Terminal:** Swap USDT or BNB for 5 JWC on the integrated Trade screen.
+* **BEP-20 Deposit:** Deposit 5+ JWC from an external wallet (e.g. Trust Wallet, MetaMask) into your Vault.
+* **PancakeSwap V3:** Buy directly on PancakeSwap V3 via the official contract link.
 
 ### Pillar A: Active Tap-to-Mine
 * **Tap Yield:** Every tap on the digital gold medallion extracts exactly **10.0 JWC**.
@@ -72,6 +86,7 @@ JuwishCoin features a **Dual-Engine Mining Architecture** that rewards both acti
 ### Mining Parameters Summary Table
 | Mining Metric | Parameter Value | Details |
 | :--- | :--- | :--- |
+| **Activation Gate** | **5.0 JWC Deposit/Buy** | One-time requirement to unlock node |
 | **Max Energy** | 1,000 Points | Auto-regenerates continuously |
 | **Active Tap Yield** | +10.0 JWC / Tap | 1,000 JWC per full energy cycle |
 | **Cloud Hashrate** | 142.8 GH/s | Running 24/7 on BSC cloud servers |
@@ -198,8 +213,8 @@ To manage, store, or trade JuwishCoin externally, follow these instructions to i
 
 ## 10. Frequently Asked Questions (FAQ)
 
-**Q1: Is JuwishCoin free to mine?**  
-Yes! Anyone with a Telegram account can join, tap to mine, claim daily streaks, and earn JWC completely free.
+**Q1: How do I start mining JuwishCoin?**  
+To protect genuine users and block automated bot farms, users simply deposit or buy at least **5 JWC** (approx. $15.00 USDT at $3.00 price) once. After this 1-step activation, tap-to-mine (+10 JWC/tap) and 24/7 passive cloud mining (34.5 JWC/hr) unlock forever! You can also claim daily login streaks in the Earn tab.
 
 **Q2: What is the official contract address?**  
 `0xfEEEF79d2A97d9e1f9bcB8eBA8FD9587079C9e99` on BNB Smart Chain.
@@ -227,3 +242,4 @@ You earn a 10% lifetime commission on every token your referred friends mine or 
 
 ---
 *© 2026 JuwishCoin ($JWC) Global Community Foundation. All rights reserved.*
+

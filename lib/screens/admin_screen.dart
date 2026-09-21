@@ -22,6 +22,11 @@ class _AdminScreenState extends State<AdminScreen> {
   late bool _bannerActive;
   late TextEditingController _bannerTextCtrl;
 
+  // Mining Activation Gate State
+  late bool _miningGateRequired;
+  late double _activationThreshold;
+  late bool _miningUnlocked;
+
   @override
   void initState() {
     super.initState();
@@ -32,6 +37,10 @@ class _AdminScreenState extends State<AdminScreen> {
     _referralPct = _config.referralCommissionPct;
     _bannerActive = _config.isBannerActive;
     _bannerTextCtrl = TextEditingController(text: _config.broadcastMessage);
+
+    _miningGateRequired = _config.isMiningActivationRequired;
+    _activationThreshold = _config.activationThresholdJwc;
+    _miningUnlocked = _config.isMiningUnlocked;
   }
 
   @override
@@ -54,6 +63,11 @@ class _AdminScreenState extends State<AdminScreen> {
     _config.updateBroadcast(
       active: _bannerActive,
       message: _bannerTextCtrl.text.trim(),
+    );
+    _config.updateMiningGateSettings(
+      required: _miningGateRequired,
+      threshold: _activationThreshold,
+      unlocked: _miningUnlocked,
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -373,6 +387,111 @@ class _AdminScreenState extends State<AdminScreen> {
             activeColor: AppTheme.goldAmber,
             inactiveColor: AppTheme.surfaceLowest,
             onChanged: (val) => setState(() => _maxEnergy = val.toInt()),
+          ),
+
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Divider(height: 1, color: Colors.white12),
+          ),
+
+          // Mining Activation Gate (5 JWC Requirement)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.shield_rounded, color: AppTheme.goldAmber, size: 16),
+                  SizedBox(width: 6),
+                  Text(
+                    'Mining Activation Gate (Anti-Sybil)',
+                    style: TextStyle(color: AppTheme.textLight, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Switch(
+                value: _miningGateRequired,
+                activeThumbColor: AppTheme.goldAmber,
+                onChanged: (val) => setState(() => _miningGateRequired = val),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Requires users to buy or deposit JWC before mining & tap rewards unlock.',
+            style: TextStyle(color: AppTheme.textMuted, fontSize: 10),
+          ),
+          const SizedBox(height: 10),
+
+          // Activation Threshold Slider
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Deposit/Buy Threshold', style: TextStyle(color: AppTheme.textMuted, fontSize: 12)),
+              Text(
+                '${_activationThreshold.toStringAsFixed(0)} JWC (\$${(_activationThreshold * _jwcPrice).toStringAsFixed(2)})',
+                style: const TextStyle(
+                  fontFamily: 'JetBrains Mono',
+                  color: AppTheme.goldPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: _activationThreshold,
+            min: 1.0,
+            max: 20.0,
+            divisions: 19,
+            activeColor: AppTheme.goldAmber,
+            inactiveColor: AppTheme.surfaceLowest,
+            onChanged: (val) => setState(() => _activationThreshold = val),
+          ),
+
+          // Test user override toggle
+          Container(
+            margin: const EdgeInsets.only(top: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceLowest,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.white12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Test Current Account Status', style: TextStyle(color: AppTheme.textLight, fontSize: 11, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 2),
+                    Text(
+                      _miningUnlocked ? 'UNLOCKED (Able to mine)' : 'LOCKED (Requires deposit)',
+                      style: TextStyle(
+                        fontFamily: 'JetBrains Mono',
+                        color: _miningUnlocked ? AppTheme.emeraldPositive : AppTheme.rubyNegative,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _miningUnlocked = !_miningUnlocked;
+                    });
+                  },
+                  child: Text(
+                    _miningUnlocked ? 'LOCK RIG' : 'UNLOCK RIG',
+                    style: TextStyle(
+                      color: _miningUnlocked ? AppTheme.rubyNegative : AppTheme.emeraldPositive,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
