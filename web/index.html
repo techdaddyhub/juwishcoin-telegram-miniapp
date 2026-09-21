@@ -76,6 +76,19 @@
       }
     })();
 
+    // Helper to open links seamlessly inside Telegram or browser
+    window.openExternalLink = function(url) {
+      try {
+        if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.openLink === 'function') {
+          window.Telegram.WebApp.openLink(url);
+        } else {
+          window.open(url, '_blank');
+        }
+      } catch (e) {
+        window.open(url, '_blank');
+      }
+    };
+
     // Remove loading splash screen when Flutter renders its first frame
     function removeJwcLoader() {
       const loader = document.getElementById('loading');

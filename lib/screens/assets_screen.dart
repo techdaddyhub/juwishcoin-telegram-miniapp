@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
 import '../models/app_config.dart';
+import '../utils/platform_link.dart';
 
 class AssetsScreen extends StatefulWidget {
   final double jwcBalance;
@@ -73,8 +74,30 @@ class _AssetsScreenState extends State<AssetsScreen> {
         ),
         actions: [
           TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              openExternalUrl(AppConfig.instance.bscScanUrl);
+            },
+            child: const Text('BSCSCAN', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              openExternalUrl(AppConfig.instance.pancakeSwapBuyUrl);
+            },
+            child: const Text(
+              'PANCAKESWAP',
+              style: TextStyle(color: AppTheme.goldPrimary, fontSize: 11, fontWeight: FontWeight.bold),
+            ),
+          ),
+          ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('EXCELLENT', style: TextStyle(color: AppTheme.goldPrimary, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.goldPrimary,
+              foregroundColor: AppTheme.obsidian,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            ),
+            child: const Text('DONE', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11)),
           ),
         ],
       ),
@@ -522,6 +545,77 @@ class _AssetsScreenState extends State<AssetsScreen> {
                     'Direct Auto-Stake: +${AppConfig.instance.stakingApy.toStringAsFixed(1)}% APY starts accumulating instantly.',
                     style: const TextStyle(color: AppTheme.goldChampagne, fontSize: 10),
                   ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // BEP-20 Contract Row
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceLowest,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.white.withAlpha(15)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'BEP-20 Contract',
+                  style: TextStyle(color: AppTheme.textMuted, fontSize: 11),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: AppConfig.instance.contractAddress));
+                        HapticFeedback.lightImpact();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: AppTheme.surfaceElevated,
+                            content: Row(
+                              children: [
+                                Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive, size: 16),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Contract copied: 0xfEEE...9e99',
+                                  style: TextStyle(color: AppTheme.goldChampagne, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            AppConfig.instance.shortContractAddress,
+                            style: const TextStyle(
+                              fontFamily: 'JetBrains Mono',
+                              color: AppTheme.goldChampagne,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.copy_rounded, color: AppTheme.goldAmber, size: 11),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        openExternalUrl(AppConfig.instance.bscScanUrl);
+                      },
+                      child: const Icon(Icons.travel_explore_rounded, color: AppTheme.goldPrimary, size: 13),
+                    ),
+                  ],
                 ),
               ],
             ),

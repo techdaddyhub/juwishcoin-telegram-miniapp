@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
 import '../models/app_config.dart';
+import '../utils/platform_link.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -200,6 +201,55 @@ class _AdminScreenState extends State<AdminScreen> {
               ),
               Expanded(
                 child: _TelemetryStat('Mining Hashrate', '142.8 GH/s'),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Divider(height: 1, color: Colors.white12),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('BEP-20 CONTRACT (BSC)', style: TextStyle(color: AppTheme.textMuted, fontSize: 9)),
+                  const SizedBox(height: 2),
+                  Text(
+                    _config.shortContractAddress,
+                    style: const TextStyle(
+                      fontFamily: 'JetBrains Mono',
+                      color: AppTheme.goldChampagne,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: _config.contractAddress));
+                      HapticFeedback.lightImpact();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Contract address copied!'),
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.copy_rounded, size: 11, color: AppTheme.goldAmber),
+                    label: const Text('COPY', style: TextStyle(color: AppTheme.goldAmber, fontSize: 10)),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => openExternalUrl(_config.bscScanUrl),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 11, color: AppTheme.goldPrimary),
+                    label: const Text('BSCSCAN', style: TextStyle(color: AppTheme.goldPrimary, fontSize: 10)),
+                  ),
+                ],
               ),
             ],
           ),

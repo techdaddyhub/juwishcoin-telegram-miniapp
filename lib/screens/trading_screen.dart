@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
 import '../models/app_config.dart';
+import '../utils/platform_link.dart';
 
 class TradingScreen extends StatefulWidget {
   final double jwcBalance;
@@ -157,11 +158,33 @@ class _TradingScreenState extends State<TradingScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              openExternalUrl(AppConfig.instance.bscScanUrl);
+            },
+            child: const Text('BSCSCAN', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              final url = _payToken == 'JWC'
+                  ? AppConfig.instance.pancakeSwapSellUrl
+                  : AppConfig.instance.pancakeSwapBuyUrl;
+              openExternalUrl(url);
+            },
             child: const Text(
-              'PROCEED',
-              style: TextStyle(color: AppTheme.goldPrimary, fontWeight: FontWeight.bold),
+              'PANCAKESWAP',
+              style: TextStyle(color: AppTheme.goldPrimary, fontSize: 11, fontWeight: FontWeight.bold),
             ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.goldPrimary,
+              foregroundColor: AppTheme.obsidian,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            ),
+            child: const Text('DONE', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11)),
           ),
         ],
       ),
@@ -957,17 +980,34 @@ class _TradingScreenState extends State<TradingScreen> {
                       'DEX Route',
                       style: TextStyle(color: AppTheme.textMuted, fontSize: 11),
                     ),
-                    const Text(
-                      'PancakeSwap V3 (0.05%)',
-                      style: TextStyle(
-                        color: AppTheme.textLight,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                    GestureDetector(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        final url = _payToken == 'JWC'
+                            ? AppConfig.instance.pancakeSwapSellUrl
+                            : AppConfig.instance.pancakeSwapBuyUrl;
+                        openExternalUrl(url);
+                      },
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'PancakeSwap V3 (0.05%)',
+                            style: TextStyle(
+                              color: AppTheme.goldPrimary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                          SizedBox(width: 4),
+                          Icon(Icons.open_in_new_rounded, color: AppTheme.goldPrimary, size: 12),
+                        ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -998,6 +1038,70 @@ class _TradingScreenState extends State<TradingScreen> {
                           ),
                         );
                       }).toList(),
+                    ),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 6),
+                  child: Divider(height: 1, color: Colors.white10),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'BEP-20 Contract',
+                      style: TextStyle(color: AppTheme.textMuted, fontSize: 11),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Clipboard.setData(ClipboardData(text: AppConfig.instance.contractAddress));
+                            HapticFeedback.lightImpact();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                backgroundColor: AppTheme.surfaceElevated,
+                                content: Row(
+                                  children: [
+                                    Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive, size: 16),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Contract copied: 0xfEEE...9e99',
+                                      style: TextStyle(color: AppTheme.goldChampagne, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                AppConfig.instance.shortContractAddress,
+                                style: const TextStyle(
+                                  fontFamily: 'JetBrains Mono',
+                                  color: AppTheme.goldChampagne,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.copy_rounded, color: AppTheme.goldAmber, size: 11),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            openExternalUrl(AppConfig.instance.bscScanUrl);
+                          },
+                          child: const Icon(Icons.travel_explore_rounded, color: AppTheme.goldPrimary, size: 13),
+                        ),
+                      ],
                     ),
                   ],
                 ),

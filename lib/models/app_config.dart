@@ -17,6 +17,17 @@ class AppConfig extends ChangeNotifier {
   double stakingApy = 32.5;
   double referralCommissionPct = 10.0;
 
+  // Official BEP-20 Smart Contract on BNB Smart Chain
+  String contractAddress = '0xfEEEF79d2A97d9e1f9bcB8eBA8FD9587079C9e99';
+  String get shortContractAddress =>
+      '${contractAddress.substring(0, 6)}...${contractAddress.substring(contractAddress.length - 4)}';
+  String get bscScanUrl => 'https://bscscan.com/token/$contractAddress';
+  String get pancakeSwapBuyUrl =>
+      'https://pancakeswap.finance/swap?outputCurrency=$contractAddress&inputCurrency=0x55d398326f99059fF775485246999027B3197955';
+  String get pancakeSwapSellUrl =>
+      'https://pancakeswap.finance/swap?inputCurrency=$contractAddress&outputCurrency=0x55d398326f99059fF775485246999027B3197955';
+  String get dexScreenerUrl => 'https://dexscreener.com/bsc/$contractAddress';
+
   // Global Announcement Banner (Broadcast from Admin)
   bool isBannerActive = true;
   String broadcastMessage = '🔥 VIP STAKING BONUS: PancakeSwap V3 0% fee deposit active!';
