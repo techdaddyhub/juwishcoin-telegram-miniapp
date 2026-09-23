@@ -50,13 +50,13 @@
 
 ## 2. Quick-Start Guide for Beginners
 
-Getting started with JuwishCoin requires zero initial deposit and takes less than 60 seconds:
+All new JuwishCoin users start with a clean **0.00 JWC** wallet balance. Getting started takes less than 60 seconds:
 
 1. **Launch the Bot:** Open Telegram and start the official bot (`@juwishcoin_bot`). Tap **"Launch App"**.
-2. **Activate & Mine Tokens:** Head to the **Mine** tab. Deposit or buy at least **5 JWC** (approx. **$15.00 USDT**) to unlock your node. Once unlocked, tap the 3D Gold Medallion (+10 JWC/tap) and enjoy 24/7 passive cloud mining.
-3. **Claim Daily Streak:** Go to the **Earn** tab and claim your Day 1 reward (+50 JWC). Keep logging in daily for progressive multipliers up to +3,000 JWC.
-4. **Stake for Passive Growth:** Deposit between 5 and 500 JWC into the **VIP Staking Vault** for 7+ days to accumulate sustainable compounding yield.
-5. **Trade & Cash Out:** Visit the **Trade** tab to swap your tokens directly for USDT at the **$3.00** rate or trade via PancakeSwap V3.
+2. **Claim Day 1 Streak (+50 JWC):** Go to the **Earn** tab and claim your Day 1 reward (+50 JWC) to kickstart your portfolio immediately!
+3. **Buy or Deposit 5 JWC to Unlock Mining:** Head to the **Mine** tab. To prevent automated bot farms, users deposit or buy at least **5 JWC** (approx. **$15.00 USDT**) via PancakeSwap V3 or the instant in-app gateway. Once unlocked, tap the 3D Gold Medallion (+10 JWC/tap) and enjoy 24/7 passive cloud mining.
+4. **Stake for Passive Growth:** Deposit between 5 and 500 JWC into the **VIP Staking Vault** for 7+ days to earn sustainable yield (12% to 28% APY).
+5. **Trade & Cash Out:** Visit the **Trade** tab to swap tokens directly for USDT at the **$3.00** rate or buy/sell directly on PancakeSwap V3.
 
 ---
 
@@ -142,6 +142,15 @@ The JuwishCoin Trade Terminal is modeled after top institutional crypto exchange
 2. Enter the amount of USDT you wish to spend (e.g. $300.00 USDT).
 3. The terminal calculates your exact output: **100.00 JWC** (@ $3.00 rate).
 4. Tap **"BUY JWC"** to execute instantly.
+
+### 🥞 How to Buy JuwishCoin ($JWC) on PancakeSwap DEX
+Users can acquire JuwishCoin directly on PancakeSwap V3 on the BNB Smart Chain:
+1. **Official Direct Route:** Open [PancakeSwap V3 JWC Pool](https://pancakeswap.finance/swap?chain=bsc&outputCurrency=0xfEEEF79d2A97d9e1f9bcB8eBA8FD9587079C9e99&inputCurrency=0x55d398326f99059fF775485246999027B3197955).
+2. **Connect Web3 Wallet:** Connect your MetaMask, Trust Wallet, Binance Web3 Wallet, or SafePal on BNB Smart Chain.
+3. **Select Payment Asset:** You can swap **USDT**, **BNB**, or **BUSD** for **JWC**.
+4. **Token Contract Address:** `0xfEEEF79d2A97d9e1f9bcB8eBA8FD9587079C9e99` (symbol: `JWC`, decimals: 18).
+5. **Recommended Slippage:** 0.5% (standard BEP-20 pool).
+6. **In-App Quick Sync:** Once bought, open the JuwishCoin Mini App and tap **"Sync & Unlock"** or check the Assets Vault to start mining and staking immediately.
 
 ### How to Sell JuwishCoin ($JWC -> $USDT) at $3.00
 1. Select the **"SELL"** tab.

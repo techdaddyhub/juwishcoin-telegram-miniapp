@@ -11,7 +11,7 @@ class VipHeader extends StatelessWidget {
   const VipHeader({
     super.key,
     required this.title,
-    this.jwcBalance = 148250.0,
+    this.jwcBalance = 0.0,
   });
 
   void _showAdminPinDialog(BuildContext context) {
@@ -275,7 +275,7 @@ class VipHeader extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${jwcBalance.toStringAsFixed(0)} JWC',
+                      '${jwcBalance.toStringAsFixed(jwcBalance < 10 ? 2 : 0)} JWC',
                       style: const TextStyle(
                         fontFamily: 'JetBrains Mono',
                         color: AppTheme.goldChampagne,

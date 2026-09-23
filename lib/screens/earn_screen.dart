@@ -17,16 +17,16 @@ class EarnScreen extends StatefulWidget {
 }
 
 class _EarnScreenState extends State<EarnScreen> {
-  bool _day4Claimed = false;
+  bool _day1Claimed = false;
   final Set<String> _completedQuests = {};
 
   final String _referralLink = 'https://t.me/JuwishCoinBot/app?startapp=ref_whale777';
 
-  void _claimStreakDay4() {
-    if (_day4Claimed) return;
+  void _claimStreakDay1() {
+    if (_day1Claimed) return;
     HapticFeedback.heavyImpact();
-    setState(() => _day4Claimed = true);
-    widget.onRewardClaimed(250.0);
+    setState(() => _day1Claimed = true);
+    widget.onRewardClaimed(50.0);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -36,7 +36,7 @@ class _EarnScreenState extends State<EarnScreen> {
             Icon(Icons.bolt_rounded, color: AppTheme.goldPrimary),
             SizedBox(width: 8),
             Text(
-              'Claimed Day 4 Bonus: +250 JWC!',
+              'Claimed Day 1 Bonus: +50 JWC!',
               style: TextStyle(color: AppTheme.goldChampagne, fontWeight: FontWeight.bold),
             ),
           ],
@@ -177,20 +177,20 @@ class _EarnScreenState extends State<EarnScreen> {
               color: AppTheme.surfaceLowest,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'TOTAL EARNED TO DATE',
                       style: TextStyle(color: AppTheme.textMuted, fontSize: 9, fontWeight: FontWeight.w700),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      '18,420.50 JWC',
-                      style: TextStyle(
+                      '${widget.jwcBalance.toStringAsFixed(widget.jwcBalance < 10 ? 2 : 0)} JWC',
+                      style: const TextStyle(
                         fontFamily: 'JetBrains Mono',
                         color: AppTheme.goldChampagne,
                         fontSize: 16,
@@ -200,8 +200,8 @@ class _EarnScreenState extends State<EarnScreen> {
                   ],
                 ),
                 Text(
-                  '≈ \$52,406 USD',
-                  style: TextStyle(
+                  '≈ \$${(widget.jwcBalance * 3.0).toStringAsFixed(2)} USD',
+                  style: const TextStyle(
                     fontFamily: 'JetBrains Mono',
                     color: AppTheme.goldAmber,
                     fontSize: 12,
@@ -218,10 +218,10 @@ class _EarnScreenState extends State<EarnScreen> {
 
   Widget _buildStreakMatrix() {
     final streakDays = [
-      {'day': 'D1', 'reward': '+50', 'claimed': true},
-      {'day': 'D2', 'reward': '+100', 'claimed': true},
-      {'day': 'D3', 'reward': '+150', 'claimed': true},
-      {'day': 'D4', 'reward': '+250', 'claimed': _day4Claimed, 'ready': !_day4Claimed},
+      {'day': 'D1', 'reward': '+50', 'claimed': _day1Claimed, 'ready': !_day1Claimed},
+      {'day': 'D2', 'reward': '+100', 'locked': true},
+      {'day': 'D3', 'reward': '+150', 'locked': true},
+      {'day': 'D4', 'reward': '+250', 'locked': true},
       {'day': 'D5', 'reward': '+400', 'locked': true},
       {'day': 'D6', 'reward': '+600', 'locked': true},
       {'day': 'D7', 'reward': 'VAULT', 'locked': true},
@@ -258,7 +258,7 @@ class _EarnScreenState extends State<EarnScreen> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  _day4Claimed ? 'STREAK ACTIVE' : 'DAY 4 READY',
+                  _day1Claimed ? 'STREAK ACTIVE' : 'DAY 1 READY',
                   style: const TextStyle(
                     color: AppTheme.obsidian,
                     fontSize: 9,
@@ -278,7 +278,7 @@ class _EarnScreenState extends State<EarnScreen> {
 
               return Expanded(
                 child: GestureDetector(
-                  onTap: isReady ? _claimStreakDay4 : null,
+                  onTap: isReady ? _claimStreakDay1 : null,
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 2),
                     padding: const EdgeInsets.symmetric(vertical: 8),

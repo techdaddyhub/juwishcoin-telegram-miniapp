@@ -28,11 +28,11 @@ class _TradingScreenState extends State<TradingScreen> {
   bool _isInstantSwap = true;
   String _payToken = 'USDT';
   String _receiveToken = 'JWC';
-  double _usdtBalance = 4500.0;
-  final double _bnbBalance = 14.85;
+  double _usdtBalance = 0.0;
+  final double _bnbBalance = 0.0;
 
-  final TextEditingController _payAmountController = TextEditingController(text: '500.00');
-  final TextEditingController _receiveAmountController = TextEditingController(text: '175.74');
+  final TextEditingController _payAmountController = TextEditingController(text: '15.00');
+  final TextEditingController _receiveAmountController = TextEditingController(text: '5.00');
 
   double get _currentPrice => AppConfig.instance.jwcPriceUsdt; // Dynamic from Admin
   double _slippage = 0.5;
@@ -92,6 +92,134 @@ class _TradingScreenState extends State<TradingScreen> {
     setState(() {});
   }
 
+  void _showPancakeSwapBuyPrompt(double payAmount, double receiveJwc) {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceCharcoal,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border.all(color: AppTheme.goldPrimary.withAlpha(80)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text('🥞', style: TextStyle(fontSize: 22)),
+                const SizedBox(width: 8),
+                Text(
+                  'Buy JWC on PancakeSwap',
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    color: AppTheme.goldChampagne,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Your in-app $_payToken balance is 0.00. You can buy ${receiveJwc.toStringAsFixed(2)} JWC directly through PancakeSwap V3 on BNB Smart Chain using your connected Web3 wallet, or use instant simulated credit.',
+              style: const TextStyle(color: AppTheme.textMuted, fontSize: 12, height: 1.4),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceLowest,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.white10),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('PancakeSwap Rate:', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+                  Text(
+                    '1 JWC = \$${_currentPrice.toStringAsFixed(2)} USDT',
+                    style: const TextStyle(
+                      fontFamily: 'JetBrains Mono',
+                      color: AppTheme.goldPrimary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  final url = _payToken == 'BNB'
+                      ? AppConfig.instance.pancakeSwapBuyWithBnbUrl
+                      : AppConfig.instance.pancakeSwapBuyUrl;
+                  openExternalUrl(url);
+                },
+                icon: const Text('🥞', style: TextStyle(fontSize: 16)),
+                label: const Text(
+                  'OPEN PANCAKESWAP V3 POOL',
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12, letterSpacing: 0.5),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.goldPrimary,
+                  foregroundColor: AppTheme.obsidian,
+                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  widget.onSwapComplete(receiveJwc, 0);
+                  HapticFeedback.heavyImpact();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: AppTheme.surfaceElevated,
+                      content: Row(
+                        children: [
+                          const Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Credited +${receiveJwc.toStringAsFixed(2)} JWC to your wallet!',
+                              style: const TextStyle(color: AppTheme.goldChampagne, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.bolt_rounded, color: AppTheme.goldPrimary, size: 16),
+                label: const Text(
+                  'INSTANT BUY & CREDIT IN-APP',
+                  style: TextStyle(color: AppTheme.goldPrimary, fontWeight: FontWeight.bold, fontSize: 11),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: AppTheme.goldPrimary.withAlpha(90)),
+                  padding: const EdgeInsets.symmetric(vertical: 11),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _executeSwap() {
     final double? pay = double.tryParse(_payAmountController.text);
     final double? receive = double.tryParse(_receiveAmountController.text);
@@ -110,21 +238,22 @@ class _TradingScreenState extends State<TradingScreen> {
 
     if (_payToken == 'USDT' && _receiveToken == 'JWC') {
       if (pay > _usdtBalance) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Insufficient USDT Balance'),
-            backgroundColor: AppTheme.crimsonNegative,
-          ),
-        );
+        _showPancakeSwapBuyPrompt(pay, receive ?? (pay / _currentPrice));
         return;
       }
       _usdtBalance -= pay;
       widget.onSwapComplete(receive ?? 0, -pay);
+    } else if (_payToken == 'BNB' && _receiveToken == 'JWC') {
+      if (pay > _bnbBalance) {
+        _showPancakeSwapBuyPrompt(pay, receive ?? ((pay * 600) / _currentPrice));
+        return;
+      }
+      widget.onSwapComplete(receive ?? 0, 0);
     } else if (_payToken == 'JWC' && _receiveToken == 'USDT') {
       if (pay > widget.jwcBalance) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Insufficient JWC Balance'),
+            content: Text('Insufficient JWC Balance to Swap'),
             backgroundColor: AppTheme.crimsonNegative,
           ),
         );
@@ -698,6 +827,60 @@ class _TradingScreenState extends State<TradingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // PancakeSwap DEX Direct Gateway Banner
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceLowest,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppTheme.goldPrimary.withAlpha(50)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Text('🥞', style: TextStyle(fontSize: 16)),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'PancakeSwap V3 DEX Pool',
+                          style: TextStyle(
+                            color: AppTheme.goldChampagne,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Target: \$${_currentPrice.toStringAsFixed(2)} USDT',
+                          style: const TextStyle(color: AppTheme.textMuted, fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                ElevatedButton(
+                  onPressed: () => openExternalUrl(AppConfig.instance.pancakeSwapBuyUrl),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.goldPrimary,
+                    foregroundColor: AppTheme.obsidian,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  ),
+                  child: const Text(
+                    'BUY ON DEX',
+                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           // Swap Mode Tabs
           Container(
             padding: const EdgeInsets.all(3),
@@ -1138,6 +1321,33 @@ class _TradingScreenState extends State<TradingScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Direct PancakeSwap External Swap Button
+          OutlinedButton.icon(
+            onPressed: () {
+              final url = _payToken == 'BNB'
+                  ? AppConfig.instance.pancakeSwapBuyWithBnbUrl
+                  : AppConfig.instance.pancakeSwapBuyUrl;
+              openExternalUrl(url);
+            },
+            icon: const Text('🥞', style: TextStyle(fontSize: 16)),
+            label: const Text(
+              'BUY JWC ON PANCAKESWAP DEX',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.goldPrimary,
+                letterSpacing: 0.5,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: AppTheme.goldPrimary.withAlpha(140)),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
           ),
         ],

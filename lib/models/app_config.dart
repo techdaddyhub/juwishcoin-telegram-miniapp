@@ -128,9 +128,11 @@ class AppConfig extends ChangeNotifier {
       '${contractAddress.substring(0, 6)}...${contractAddress.substring(contractAddress.length - 4)}';
   String get bscScanUrl => 'https://bscscan.com/token/$contractAddress';
   String get pancakeSwapBuyUrl =>
-      'https://pancakeswap.finance/swap?outputCurrency=$contractAddress&inputCurrency=0x55d398326f99059fF775485246999027B3197955';
+      'https://pancakeswap.finance/swap?chain=bsc&outputCurrency=$contractAddress&inputCurrency=0x55d398326f99059fF775485246999027B3197955';
+  String get pancakeSwapBuyWithBnbUrl =>
+      'https://pancakeswap.finance/swap?chain=bsc&outputCurrency=$contractAddress&inputCurrency=BNB';
   String get pancakeSwapSellUrl =>
-      'https://pancakeswap.finance/swap?inputCurrency=$contractAddress&outputCurrency=0x55d398326f99059fF775485246999027B3197955';
+      'https://pancakeswap.finance/swap?chain=bsc&inputCurrency=$contractAddress&outputCurrency=0x55d398326f99059fF775485246999027B3197955';
   String get dexScreenerUrl => 'https://dexscreener.com/bsc/$contractAddress';
 
   // Global Announcement Banner (Broadcast from Admin)

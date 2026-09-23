@@ -14,7 +14,7 @@ class MiningScreen extends StatefulWidget {
 
   const MiningScreen({
     super.key,
-    this.initialFarmed = 42891.4829,
+    this.initialFarmed = 0.0,
     required this.onYieldClaimed,
     this.onNavigateToTab,
     this.onDirectActivationPurchase,
@@ -26,7 +26,7 @@ class MiningScreen extends StatefulWidget {
 
 class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderStateMixin {
   late double _totalFarmed;
-  double _unclaimedYield = 384.19;
+  double _unclaimedYield = 0.0;
   int _currentEnergy = 940;
   int get _maxEnergy => AppConfig.instance.maxEnergy;
   double get _hashrateGhs => AppConfig.instance.baseHashrateGhs;
@@ -407,18 +407,64 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
 
                 // PancakeSwap External Direct Link
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      openExternalUrl(config.pancakeSwapBuyUrl);
+                    },
+                    icon: const Text('🥞', style: TextStyle(fontSize: 15)),
+                    label: const Text(
+                      'BUY JWC ON PANCAKESWAP DEX',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.surfaceElevated,
+                      foregroundColor: AppTheme.goldPrimary,
+                      side: const BorderSide(color: AppTheme.goldPrimary, width: 1),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+
+                // Bought on PancakeSwap Sync Button
                 TextButton.icon(
                   onPressed: () {
                     Navigator.of(ctx).pop();
-                    openExternalUrl(config.pancakeSwapBuyUrl);
+                    widget.onDirectActivationPurchase?.call(5.0);
+                    HapticFeedback.heavyImpact();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        backgroundColor: AppTheme.surfaceElevated,
+                        content: Row(
+                          children: [
+                            Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'PancakeSwap Purchase Synced: +5.0 JWC! Node unlocked.',
+                                style: TextStyle(color: AppTheme.goldChampagne, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
                   },
-                  icon: const Icon(Icons.open_in_new_rounded, size: 13, color: AppTheme.goldAmber),
+                  icon: const Icon(Icons.verified_rounded, size: 14, color: AppTheme.emeraldPositive),
                   label: const Text(
-                    'Buy on PancakeSwap DEX (V3 Pool)',
-                    style: TextStyle(color: AppTheme.goldAmber, fontSize: 11, fontWeight: FontWeight.w600),
+                    'Already bought on PancakeSwap? Click to Sync & Unlock',
+                    style: TextStyle(color: AppTheme.emeraldPositive, fontSize: 11, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],

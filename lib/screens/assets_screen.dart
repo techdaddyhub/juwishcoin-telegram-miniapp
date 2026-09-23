@@ -23,17 +23,17 @@ class _AssetsScreenState extends State<AssetsScreen> {
   int _activeVaultTab = 0; // 0: Stake Vault, 1: Auto-Buy Deposit, 2: P2P Escrow
 
   // Staking State (5 JWC min, 500 JWC max, 7+ days)
-  final TextEditingController _stakeAmountController = TextEditingController(text: '50.0');
+  final TextEditingController _stakeAmountController = TextEditingController(text: '5.0');
   int _selectedLockDays = 7;
 
   // Auto-Buy State
   String _payDepositToken = 'BNB';
-  final TextEditingController _depositAmountController = TextEditingController(text: '2.50');
+  final TextEditingController _depositAmountController = TextEditingController(text: '5.00');
 
   // P2P State
-  final TextEditingController _p2pRecipientController = TextEditingController(text: '@alex_whale');
-  final TextEditingController _p2pAmountController = TextEditingController(text: '1000.00');
-  final TextEditingController _p2pNoteController = TextEditingController(text: 'Telegram VIP OTC Deal');
+  final TextEditingController _p2pRecipientController = TextEditingController(text: '');
+  final TextEditingController _p2pAmountController = TextEditingController(text: '0.00');
+  final TextEditingController _p2pNoteController = TextEditingController(text: 'Telegram OTC Transfer');
   final String _p2pAsset = 'JWC';
 
   final List<Map<String, String>> _recentContacts = [
@@ -236,12 +236,14 @@ class _AssetsScreenState extends State<AssetsScreen> {
   }
 
   void _executeAutoBuyDeposit() {
-    final double? bnb = double.tryParse(_depositAmountController.text);
-    if (bnb == null || bnb <= 0) return;
+    final double? payAmt = double.tryParse(_depositAmountController.text);
+    if (payAmt == null || payAmt <= 0) return;
 
     HapticFeedback.mediumImpact();
-    // 1 BNB ~ 210.89 JWC -> 2.5 BNB ~ 527.2 JWC
-    final double addedJwc = bnb * 210.89;
+    final double addedJwc = _payDepositToken == 'BNB'
+        ? (payAmt * 600.0) / AppConfig.instance.jwcPriceUsdt
+        : payAmt / AppConfig.instance.jwcPriceUsdt;
+
     widget.onBalanceUpdated(addedJwc);
 
     showDialog(
@@ -256,11 +258,11 @@ class _AssetsScreenState extends State<AssetsScreen> {
           children: [
             Icon(Icons.bolt_rounded, color: AppTheme.goldPrimary, size: 24),
             SizedBox(width: 8),
-            Text('Auto-Buy Staked!', style: TextStyle(color: AppTheme.goldChampagne)),
+            Text('PancakeSwap Purchase Complete!', style: TextStyle(color: AppTheme.goldChampagne, fontSize: 15)),
           ],
         ),
         content: Text(
-          'Successfully routed $bnb BNB through PancakeSwap V3 (0.05% Pool). Credited +${addedJwc.toStringAsFixed(2)} JWC to your Staking Vault at ${AppConfig.instance.stakingApy.toStringAsFixed(1)}% APY.',
+          'Successfully routed $payAmt $_payDepositToken through PancakeSwap V3 (0.05% Pool). Credited +${addedJwc.toStringAsFixed(2)} JWC to your balance! (Mining permanently unlocked if >= 5 JWC).',
           style: const TextStyle(color: AppTheme.textLight, fontSize: 13, height: 1.4),
         ),
         actions: [
@@ -349,7 +351,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
     final double stakedJwc = AppConfig.instance.totalStakedJwc;
     final double jwcPrice = AppConfig.instance.jwcPriceUsdt;
     final double totalVaultUsd =
-        ((widget.jwcBalance + stakedJwc) * jwcPrice) + (14.85 * 600) + 4500.0;
+        ((widget.jwcBalance + stakedJwc) * jwcPrice);
 
     return Scaffold(
       backgroundColor: AppTheme.obsidian,
@@ -552,7 +554,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
               ),
               const SizedBox(width: 6),
               Expanded(
-                child: _heroActionButton('Deposit', 'Auto-Buy', Icons.south_rounded, AppTheme.emeraldPositive, () {
+                child: _heroActionButton('Buy JWC', 'Pancake', Icons.shopping_cart_rounded, AppTheme.emeraldPositive, () {
                   HapticFeedback.selectionClick();
                   setState(() => _activeVaultTab = 1);
                 }),
@@ -661,7 +663,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
       child: Row(
         children: [
           _buildTabItem(0, '⚡ STAKE (5-500 JWC)', Icons.lock_clock_rounded),
-          _buildTabItem(1, '🥞 AUTO-BUY', Icons.south_rounded),
+          _buildTabItem(1, '🥞 BUY JWC', Icons.shopping_cart_rounded),
           _buildTabItem(2, '🤝 P2P ESCROW', Icons.send_rounded),
         ],
       ),
@@ -1552,6 +1554,33 @@ class _AssetsScreenState extends State<AssetsScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 8),
+
+          // Direct External PancakeSwap Link
+          OutlinedButton.icon(
+            onPressed: () {
+              final url = _payDepositToken == 'BNB'
+                  ? AppConfig.instance.pancakeSwapBuyWithBnbUrl
+                  : AppConfig.instance.pancakeSwapBuyUrl;
+              openExternalUrl(url);
+            },
+            icon: const Text('🥞', style: TextStyle(fontSize: 16)),
+            label: const Text(
+              'OPEN PANCAKESWAP V3 POOL',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.goldPrimary,
+                letterSpacing: 0.5,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: AppTheme.goldPrimary.withAlpha(140)),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
         ],
       ),
     );
@@ -1754,10 +1783,10 @@ class _AssetsScreenState extends State<AssetsScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          _assetRow('JuwishCoin (JWC)', '${widget.jwcBalance.toStringAsFixed(0)} JWC', '\$${(widget.jwcBalance * 2.8450).toStringAsFixed(2)}', AppTheme.goldPrimary),
-          _assetRow('Binance Coin (BNB)', '14.85 BNB', '\$8,910.00', AppTheme.goldAmber),
-          _assetRow('Tether USD (USDT)', '4,500.00 USDT', '\$4,500.00', AppTheme.emeraldPositive),
-          _assetRow('Bitcoin BEP20 (BTCB)', '0.15 BTCB', '\$9,650.00', AppTheme.goldChampagne),
+          _assetRow('JuwishCoin (JWC)', '${widget.jwcBalance.toStringAsFixed(widget.jwcBalance < 10 ? 2 : 0)} JWC', '\$${(widget.jwcBalance * AppConfig.instance.jwcPriceUsdt).toStringAsFixed(2)}', AppTheme.goldPrimary),
+          _assetRow('Binance Coin (BNB)', '0.00 BNB', '\$0.00', AppTheme.goldAmber),
+          _assetRow('Tether USD (USDT)', '0.00 USDT', '\$0.00', AppTheme.emeraldPositive),
+          _assetRow('Bitcoin BEP20 (BTCB)', '0.00 BTCB', '\$0.00', AppTheme.goldChampagne),
         ],
       ),
     );

@@ -365,13 +365,13 @@ def create_guide():
     # =============================================================
     doc.text.addElement(H(outlinelevel=1, stylename="ChapterHeading", text="2. Quick-Start Guide (Get Started in 60 Seconds)"))
 
-    add_p("Getting started with JuwishCoin requires zero initial deposit and takes less than a minute. Follow these 5 essential steps:")
+    add_p("All new JuwishCoin users start with a clean 0.00 JWC balance. Getting started takes less than a minute. Follow these 5 essential steps:")
 
     add_bullet("Launch the JuwishCoin Mini App inside Telegram via the official bot link (@juwishcoin_bot).", "Step 1: Open the Mini App.")
-    add_bullet("Head to the Mine tab. Activate your cloud rig and tap nodes by depositing or buying at least 5 JWC ($15.00 USDT). Once unlocked, tap to mine (+10 JWC) and earn 24/7 passive cloud rewards.", "Step 2: Activate Node & Start Mining.")
-    add_bullet("Navigate to the Earn tab to claim your Day 1 streak bonus (+50 JWC) and complete quick social bounties for extra tokens.", "Step 3: Collect Daily Streak & Bounties.")
-    add_bullet("Move your mined tokens into the VIP Vault to start compounding interest at +32.5% APY with zero deposit fees.", "Step 4: Stake in the VIP Vault.")
-    add_bullet("Open the Trade terminal to swap your mined JWC directly for USDT at the $3.00 rate or execute on PancakeSwap V3.", "Step 5: Trade or Cash Out at $3.00.")
+    add_bullet("Navigate to the Earn tab to claim your Day 1 streak bonus (+50 JWC) to immediately start your portfolio.", "Step 2: Collect Day 1 Streak (+50 JWC).")
+    add_bullet("Head to the Mine tab. Activate your node by depositing or buying at least 5 JWC ($15.00 USDT) via PancakeSwap V3 or the in-app gateway. Once unlocked, tap to mine (+10 JWC) and earn 24/7 passive cloud rewards.", "Step 3: Activate Node & Start Mining.")
+    add_bullet("Deposit between 5 and 500 JWC into the VIP Vault for 7+ days to earn sustainable yield (12% to 28% APY).", "Step 4: Stake in the VIP Vault (5-500 JWC).")
+    add_bullet("Open the Trade terminal to swap your tokens directly for USDT at the $3.00 rate or buy/sell directly on PancakeSwap V3.", "Step 5: Trade or Cash Out at $3.00.")
 
     add_image("telegram_assets/botfather_app_photo_640x360.png", width="12cm", height="6.75cm")
 
@@ -470,6 +470,23 @@ def create_guide():
     add_bullet("JWC / BNB: Direct decentralized trading pair against native Binance Coin.", "2. Blockchain Native Pair:")
     add_bullet("JWC / BTC: Macro pair for high-net-worth portfolio diversification.", "3. High-Net-Worth Macro Pair:")
 
+    doc.text.addElement(H(outlinelevel=2, stylename="SectionHeading", text="How to Buy JuwishCoin on PancakeSwap V3 (DEX)"))
+    add_p("Acquiring JWC directly on PancakeSwap on the BNB Smart Chain is simple and permissionless:")
+    add_bullet("Connect MetaMask, Trust Wallet, Binance Web3 Wallet, or SafePal on the BNB Smart Chain.", "1. Connect Web3 Wallet:")
+    add_bullet("Choose BNB, USDT, or BUSD as the payment asset to swap into JuwishCoin ($JWC).", "2. Select Payment Asset:")
+    add_bullet("0xfEEEF79d2A97d9e1f9bcB8eBA8FD9587079C9e99 (BEP-20 on BNB Smart Chain).", "3. Official Contract Address:")
+    add_bullet("0.5% standard slippage tolerance is recommended for the V3 liquidity pool.", "4. Recommended Slippage:")
+    add_bullet("Approve and confirm the transaction in your wallet; then return to the Mini App to sync.", "5. Execute & Sync in App:")
+
+    add_callout(
+        "Direct PancakeSwap Buy Route (Pre-selected):\n"
+        "https://pancakeswap.finance/swap?chain=bsc\n"
+        "&outputCurrency=0xfEEEF79d2A97d9e1f9bcB8eBA8FD9587079C9e99\n"
+        "&inputCurrency=0x55d398326f99059fF775485246999027B3197955\n\n"
+        "Pre-filled Route: BSC-USDT -> JWC (0xfEEE...9e99)",
+        title="OFFICIAL PANCAKESWAP DIRECT BUY ROUTE:"
+    )
+
     doc.text.addElement(H(outlinelevel=2, stylename="SectionHeading", text="How to Sell JuwishCoin ($JWC -> $USDT) at $3.00"))
     add_p("Cashing out your tokens is straightforward and fully transparent:")
     add_bullet("Click on the Trade tab on the bottom navigation bar and select the 'SELL' mode.", "1. Select Sell Tab:")
@@ -482,11 +499,11 @@ def create_guide():
 
     add_callout(
         "Direct PancakeSwap Sell Route:\n"
-        "https://pancakeswap.finance/swap\n"
-        "?inputCurrency=0xfEEEF79d2A97d9e1f9bcB8eBA8FD9587079C9e99\n"
+        "https://pancakeswap.finance/swap?chain=bsc\n"
+        "&inputCurrency=0xfEEEF79d2A97d9e1f9bcB8eBA8FD9587079C9e99\n"
         "&outputCurrency=0x55d398326f99059fF775485246999027B3197955\n\n"
         "Tokens Pre-filled: JWC (0xfEEE...9e99) -> BSC-USDT (0x55d3...7955)",
-        title="OFFICIAL PANCAKESWAP DIRECT TRADE ROUTE:"
+        title="OFFICIAL PANCAKESWAP DIRECT SELL ROUTE:"
     )
 
     # =============================================================
