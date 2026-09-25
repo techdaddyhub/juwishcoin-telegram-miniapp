@@ -6,12 +6,18 @@ import '../utils/platform_link.dart';
 
 class TradingScreen extends StatefulWidget {
   final double jwcBalance;
-  final Function(double deltaJwc, double deltaUsdt) onSwapComplete;
+  final double usdtBalance;
+  final double wbnbBalance;
+  final Function(double deltaJwc, double deltaUsdt, double deltaWbnb) onSwapComplete;
+  final VoidCallback? onOpenDeposit;
 
   const TradingScreen({
     super.key,
     required this.jwcBalance,
+    required this.usdtBalance,
+    required this.wbnbBalance,
     required this.onSwapComplete,
+    this.onOpenDeposit,
   });
 
   @override
@@ -20,7 +26,7 @@ class TradingScreen extends StatefulWidget {
 
 class _TradingScreenState extends State<TradingScreen> {
   String _selectedPair = 'JWC / USDT';
-  final List<String> _pairs = ['JWC / USDT', 'JWC / BNB', 'WBNB', 'BTCB'];
+  final List<String> _pairs = ['JWC / USDT', 'JWC / WBNB', 'WBNB / USDT'];
 
   String _selectedTimeframe = '1H';
   final List<String> _timeframes = ['15m', '1H', '4H', '1D', '1W'];
@@ -28,13 +34,12 @@ class _TradingScreenState extends State<TradingScreen> {
   bool _isInstantSwap = true;
   String _payToken = 'USDT';
   String _receiveToken = 'JWC';
-  double _usdtBalance = 0.0;
-  final double _bnbBalance = 0.0;
 
   final TextEditingController _payAmountController = TextEditingController(text: '15.00');
   final TextEditingController _receiveAmountController = TextEditingController(text: '5.00');
 
   double get _currentPrice => AppConfig.instance.jwcPriceUsdt; // Dynamic from Admin
+  double get _wbnbPrice => AppConfig.instance.wbnbPriceUsdt; // Dynamic from Admin
   double _slippage = 0.5;
 
   @override
@@ -56,16 +61,27 @@ class _TradingScreenState extends State<TradingScreen> {
       _receiveAmountController.text = '0.00';
       return;
     }
+
     if (_payToken == 'USDT' && _receiveToken == 'JWC') {
       final double jwc = pay / _currentPrice;
       _receiveAmountController.text = jwc.toStringAsFixed(2);
     } else if (_payToken == 'JWC' && _receiveToken == 'USDT') {
       final double usdt = pay * _currentPrice;
       _receiveAmountController.text = usdt.toStringAsFixed(2);
-    } else if (_payToken == 'BNB' && _receiveToken == 'JWC') {
-      // 1 BNB ~ 600 USDT -> 600 / 2.845 ~ 210.89 JWC
-      final double jwc = (pay * 600) / _currentPrice;
+    } else if (_payToken == 'WBNB' && _receiveToken == 'JWC') {
+      // 1 WBNB = _wbnbPrice USDT -> (pay * _wbnbPrice) / _currentPrice JWC
+      final double jwc = (pay * _wbnbPrice) / _currentPrice;
       _receiveAmountController.text = jwc.toStringAsFixed(2);
+    } else if (_payToken == 'JWC' && _receiveToken == 'WBNB') {
+      // 1 JWC = _currentPrice USDT -> (pay * _currentPrice) / _wbnbPrice WBNB
+      final double wbnb = (pay * _currentPrice) / _wbnbPrice;
+      _receiveAmountController.text = wbnb.toStringAsFixed(4);
+    } else if (_payToken == 'USDT' && _receiveToken == 'WBNB') {
+      final double wbnb = pay / _wbnbPrice;
+      _receiveAmountController.text = wbnb.toStringAsFixed(4);
+    } else if (_payToken == 'WBNB' && _receiveToken == 'USDT') {
+      final double usdt = pay * _wbnbPrice;
+      _receiveAmountController.text = usdt.toStringAsFixed(2);
     } else {
       _receiveAmountController.text = (pay * 0.98).toStringAsFixed(2);
     }
@@ -80,19 +96,92 @@ class _TradingScreenState extends State<TradingScreen> {
     });
   }
 
+  void _showTokenSelector(bool isPay) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceCharcoal,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border.all(color: AppTheme.goldPrimary.withAlpha(70)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isPay ? 'Select Spend Token' : 'Select Receive Token',
+              style: const TextStyle(
+                color: AppTheme.goldChampagne,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...['USDT', 'WBNB', 'JWC'].map((token) {
+              final isCurrent = isPay ? _payToken == token : _receiveToken == token;
+              String balanceStr = '';
+              if (token == 'USDT') balanceStr = '${widget.usdtBalance.toStringAsFixed(2)} USDT';
+              if (token == 'WBNB') balanceStr = '${widget.wbnbBalance.toStringAsFixed(4)} WBNB';
+              if (token == 'JWC') balanceStr = '${widget.jwcBalance.toStringAsFixed(2)} JWC';
+
+              return ListTile(
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  setState(() {
+                    if (isPay) {
+                      if (_receiveToken == token) {
+                        _receiveToken = _payToken;
+                      }
+                      _payToken = token;
+                    } else {
+                      if (_payToken == token) {
+                        _payToken = _receiveToken;
+                      }
+                      _receiveToken = token;
+                    }
+                    _recalculateReceive();
+                  });
+                },
+                leading: CircleAvatar(
+                  backgroundColor: isCurrent ? AppTheme.goldPrimary : AppTheme.surfaceElevated,
+                  child: Text(
+                    token.substring(0, 1),
+                    style: TextStyle(
+                      color: isCurrent ? AppTheme.obsidian : AppTheme.goldChampagne,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                title: Text(
+                  token,
+                  style: const TextStyle(color: AppTheme.textLight, fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text('In-App Balance: $balanceStr', style: const TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+                trailing: isCurrent ? const Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive) : null,
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _setPercentage(double percent) {
     double totalAvailable = 0;
-    if (_payToken == 'USDT') totalAvailable = _usdtBalance;
+    if (_payToken == 'USDT') totalAvailable = widget.usdtBalance;
     if (_payToken == 'JWC') totalAvailable = widget.jwcBalance;
-    if (_payToken == 'BNB') totalAvailable = _bnbBalance;
+    if (_payToken == 'WBNB') totalAvailable = widget.wbnbBalance;
 
     final amount = totalAvailable * percent;
-    _payAmountController.text = amount.toStringAsFixed(2);
+    _payAmountController.text = _payToken == 'WBNB' ? amount.toStringAsFixed(4) : amount.toStringAsFixed(2);
     _recalculateReceive();
     setState(() {});
   }
 
-  void _showPancakeSwapBuyPrompt(double payAmount, double receiveJwc) {
+  void _showInsufficientFundsPrompt(double payAmount, double receiveAmount) {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
       context: context,
@@ -108,13 +197,13 @@ class _TradingScreenState extends State<TradingScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               children: [
-                const Text('🥞', style: TextStyle(fontSize: 22)),
-                const SizedBox(width: 8),
+                Text('🥞', style: TextStyle(fontSize: 22)),
+                SizedBox(width: 8),
                 Text(
-                  'Buy JWC on PancakeSwap',
-                  style: const TextStyle(
+                  'Fund Wallet to Swap',
+                  style: TextStyle(
                     fontFamily: 'Inter',
                     color: AppTheme.goldChampagne,
                     fontSize: 16,
@@ -125,7 +214,7 @@ class _TradingScreenState extends State<TradingScreen> {
             ),
             const SizedBox(height: 10),
             Text(
-              'Your in-app $_payToken balance is 0.00. You can buy ${receiveJwc.toStringAsFixed(2)} JWC directly through PancakeSwap V3 on BNB Smart Chain using your connected Web3 wallet, or use instant simulated credit.',
+              'Your in-app $_payToken balance is insufficient ($payAmount $_payToken required). Deposit $_payToken to the official receiving wallet or buy directly on PancakeSwap DEX.',
               style: const TextStyle(color: AppTheme.textMuted, fontSize: 12, height: 1.4),
             ),
             const SizedBox(height: 14),
@@ -136,18 +225,42 @@ class _TradingScreenState extends State<TradingScreen> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.white10),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
-                  const Text('PancakeSwap Rate:', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
-                  Text(
-                    '1 JWC = \$${_currentPrice.toStringAsFixed(2)} USDT',
-                    style: const TextStyle(
-                      fontFamily: 'JetBrains Mono',
-                      color: AppTheme.goldPrimary,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Your $_payToken Balance:', style: const TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+                      Text(
+                        _payToken == 'USDT'
+                            ? '${widget.usdtBalance.toStringAsFixed(2)} USDT'
+                            : (_payToken == 'WBNB'
+                                ? '${widget.wbnbBalance.toStringAsFixed(4)} WBNB'
+                                : '${widget.jwcBalance.toStringAsFixed(2)} JWC'),
+                        style: const TextStyle(
+                          fontFamily: 'JetBrains Mono',
+                          color: AppTheme.goldPrimary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('JWC Rate:', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+                      Text(
+                        '1 JWC = \$${_currentPrice.toStringAsFixed(2)} USDT',
+                        style: const TextStyle(
+                          fontFamily: 'JetBrains Mono',
+                          color: AppTheme.goldChampagne,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -158,14 +271,14 @@ class _TradingScreenState extends State<TradingScreen> {
               child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.of(ctx).pop();
-                  final url = _payToken == 'BNB'
-                      ? AppConfig.instance.pancakeSwapBuyWithBnbUrl
+                  final url = _payToken == 'WBNB' || _receiveToken == 'WBNB'
+                      ? AppConfig.instance.pancakeSwapBuyWithWbnbUrl
                       : AppConfig.instance.pancakeSwapBuyUrl;
                   openExternalUrl(url);
                 },
                 icon: const Text('🥞', style: TextStyle(fontSize: 16)),
                 label: const Text(
-                  'OPEN PANCAKESWAP V3 POOL',
+                  'OPEN PANCAKESWAP DEX',
                   style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12, letterSpacing: 0.5),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -182,30 +295,12 @@ class _TradingScreenState extends State<TradingScreen> {
               child: OutlinedButton.icon(
                 onPressed: () {
                   Navigator.of(ctx).pop();
-                  widget.onSwapComplete(receiveJwc, 0);
-                  HapticFeedback.heavyImpact();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: AppTheme.surfaceElevated,
-                      content: Row(
-                        children: [
-                          const Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Credited +${receiveJwc.toStringAsFixed(2)} JWC to your wallet!',
-                              style: const TextStyle(color: AppTheme.goldChampagne, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                  widget.onOpenDeposit?.call();
                 },
-                icon: const Icon(Icons.bolt_rounded, color: AppTheme.goldPrimary, size: 16),
-                label: const Text(
-                  'INSTANT BUY & CREDIT IN-APP',
-                  style: TextStyle(color: AppTheme.goldPrimary, fontWeight: FontWeight.bold, fontSize: 11),
+                icon: const Icon(Icons.account_balance_wallet_rounded, color: AppTheme.goldPrimary, size: 16),
+                label: Text(
+                  'DEPOSIT $_payToken TO RECEIVING WALLET',
+                  style: const TextStyle(color: AppTheme.goldPrimary, fontWeight: FontWeight.bold, fontSize: 11),
                 ),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: AppTheme.goldPrimary.withAlpha(90)),
@@ -236,20 +331,28 @@ class _TradingScreenState extends State<TradingScreen> {
 
     HapticFeedback.mediumImpact();
 
-    if (_payToken == 'USDT' && _receiveToken == 'JWC') {
-      if (pay > _usdtBalance) {
-        _showPancakeSwapBuyPrompt(pay, receive ?? (pay / _currentPrice));
+    // Check balance and execute
+    if (_payToken == 'USDT') {
+      if (pay > widget.usdtBalance) {
+        _showInsufficientFundsPrompt(pay, receive ?? (pay / _currentPrice));
         return;
       }
-      _usdtBalance -= pay;
-      widget.onSwapComplete(receive ?? 0, -pay);
-    } else if (_payToken == 'BNB' && _receiveToken == 'JWC') {
-      if (pay > _bnbBalance) {
-        _showPancakeSwapBuyPrompt(pay, receive ?? ((pay * 600) / _currentPrice));
+      if (_receiveToken == 'JWC') {
+        widget.onSwapComplete(receive ?? 0, -pay, 0);
+      } else if (_receiveToken == 'WBNB') {
+        widget.onSwapComplete(0, -pay, receive ?? 0);
+      }
+    } else if (_payToken == 'WBNB') {
+      if (pay > widget.wbnbBalance) {
+        _showInsufficientFundsPrompt(pay, receive ?? ((pay * _wbnbPrice) / _currentPrice));
         return;
       }
-      widget.onSwapComplete(receive ?? 0, 0);
-    } else if (_payToken == 'JWC' && _receiveToken == 'USDT') {
+      if (_receiveToken == 'JWC') {
+        widget.onSwapComplete(receive ?? 0, 0, -pay);
+      } else if (_receiveToken == 'USDT') {
+        widget.onSwapComplete(0, receive ?? 0, -pay);
+      }
+    } else if (_payToken == 'JWC') {
       if (pay > widget.jwcBalance) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -259,8 +362,11 @@ class _TradingScreenState extends State<TradingScreen> {
         );
         return;
       }
-      _usdtBalance += receive ?? 0;
-      widget.onSwapComplete(-pay, receive ?? 0);
+      if (_receiveToken == 'USDT') {
+        widget.onSwapComplete(-pay, receive ?? 0, 0);
+      } else if (_receiveToken == 'WBNB') {
+        widget.onSwapComplete(-pay, 0, receive ?? 0);
+      }
     }
 
     showDialog(
@@ -448,7 +554,20 @@ class _TradingScreenState extends State<TradingScreen> {
                   final isSel = pair == _selectedPair;
                   return GestureDetector(
                     onTap: () {
-                      setState(() => _selectedPair = pair);
+                      setState(() {
+                        _selectedPair = pair;
+                        if (pair == 'JWC / USDT') {
+                          _payToken = 'USDT';
+                          _receiveToken = 'JWC';
+                        } else if (pair == 'JWC / WBNB') {
+                          _payToken = 'WBNB';
+                          _receiveToken = 'JWC';
+                        } else if (pair == 'WBNB / USDT') {
+                          _payToken = 'USDT';
+                          _receiveToken = 'WBNB';
+                        }
+                        _recalculateReceive();
+                      });
                     },
                     child: Container(
                       margin: const EdgeInsets.only(left: 4),
@@ -962,7 +1081,7 @@ class _TradingScreenState extends State<TradingScreen> {
                       ),
                     ),
                     Text(
-                      'Bal: ${_payToken == "USDT" ? _usdtBalance.toStringAsFixed(2) : widget.jwcBalance.toStringAsFixed(2)} $_payToken',
+                      'Bal: ${_payToken == "USDT" ? widget.usdtBalance.toStringAsFixed(2) : (_payToken == "WBNB" ? widget.wbnbBalance.toStringAsFixed(4) : widget.jwcBalance.toStringAsFixed(2))} $_payToken',
                       style: const TextStyle(
                         fontFamily: 'JetBrains Mono',
                         color: AppTheme.textMuted,
@@ -994,24 +1113,30 @@ class _TradingScreenState extends State<TradingScreen> {
                         onChanged: (_) => _recalculateReceive(),
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppTheme.surfaceElevated,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppTheme.goldPrimary.withAlpha(50)),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            _payToken,
-                            style: const TextStyle(
-                              color: AppTheme.goldPrimary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                    GestureDetector(
+                      onTap: () => _showTokenSelector(true),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surfaceElevated,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppTheme.goldPrimary.withAlpha(50)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _payToken,
+                              style: const TextStyle(
+                                color: AppTheme.goldPrimary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            const Icon(Icons.arrow_drop_down_rounded, color: AppTheme.goldPrimary, size: 16),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -1124,19 +1249,29 @@ class _TradingScreenState extends State<TradingScreen> {
                         ),
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppTheme.surfaceElevated,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppTheme.goldPrimary.withAlpha(50)),
-                      ),
-                      child: Text(
-                        _receiveToken,
-                        style: const TextStyle(
-                          color: AppTheme.goldPrimary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                    GestureDetector(
+                      onTap: () => _showTokenSelector(false),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surfaceElevated,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppTheme.goldPrimary.withAlpha(50)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _receiveToken,
+                              style: const TextStyle(
+                                color: AppTheme.goldPrimary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.arrow_drop_down_rounded, color: AppTheme.goldPrimary, size: 16),
+                          ],
                         ),
                       ),
                     ),

@@ -16,11 +16,15 @@ class _AdminScreenState extends State<AdminScreen> {
 
   late double _tapYield;
   late int _maxEnergy;
+  late double _passiveYield;
+  late double _dailyMiningCap;
   late double _jwcPrice;
+  late double _wbnbPrice;
   late double _stakingApy;
   late double _referralPct;
   late bool _bannerActive;
   late TextEditingController _bannerTextCtrl;
+  late TextEditingController _adminWalletCtrl;
 
   // Mining Activation Gate State
   late bool _miningGateRequired;
@@ -32,11 +36,15 @@ class _AdminScreenState extends State<AdminScreen> {
     super.initState();
     _tapYield = _config.tapYield;
     _maxEnergy = _config.maxEnergy;
+    _passiveYield = _config.passiveYieldPerHour;
+    _dailyMiningCap = _config.dailyMiningCapJwc;
     _jwcPrice = _config.jwcPriceUsdt;
+    _wbnbPrice = _config.wbnbPriceUsdt;
     _stakingApy = _config.stakingApy;
     _referralPct = _config.referralCommissionPct;
     _bannerActive = _config.isBannerActive;
     _bannerTextCtrl = TextEditingController(text: _config.broadcastMessage);
+    _adminWalletCtrl = TextEditingController(text: _config.adminDepositWalletAddress);
 
     _miningGateRequired = _config.isMiningActivationRequired;
     _activationThreshold = _config.activationThresholdJwc;
@@ -46,6 +54,7 @@ class _AdminScreenState extends State<AdminScreen> {
   @override
   void dispose() {
     _bannerTextCtrl.dispose();
+    _adminWalletCtrl.dispose();
     super.dispose();
   }
 
@@ -54,12 +63,16 @@ class _AdminScreenState extends State<AdminScreen> {
     _config.updateMiningSettings(
       newTapYield: _tapYield,
       newMaxEnergy: _maxEnergy,
+      newPassiveYield: _passiveYield,
+      newDailyCap: _dailyMiningCap,
     );
     _config.updateMarketSettings(
       newPrice: _jwcPrice,
+      newWbnbPrice: _wbnbPrice,
       newStakingApy: _stakingApy,
       newReferralPct: _referralPct,
     );
+    _config.updateAdminDepositWallet(_adminWalletCtrl.text);
     _config.updateBroadcast(
       active: _bannerActive,
       message: _bannerTextCtrl.text.trim(),
@@ -345,7 +358,7 @@ class _AdminScreenState extends State<AdminScreen> {
             children: [
               const Text('Tap Yield Reward', style: TextStyle(color: AppTheme.textMuted, fontSize: 12)),
               Text(
-                '+${_tapYield.toStringAsFixed(0)} JWC / tap',
+                '+${_tapYield.toStringAsFixed(4)} JWC / tap',
                 style: const TextStyle(
                   fontFamily: 'JetBrains Mono',
                   color: AppTheme.goldPrimary,
@@ -355,13 +368,63 @@ class _AdminScreenState extends State<AdminScreen> {
             ],
           ),
           Slider(
-            value: _tapYield,
-            min: 5,
-            max: 100,
-            divisions: 19,
+            value: _tapYield.clamp(0.00005, 0.00050),
+            min: 0.00005,
+            max: 0.00050,
+            divisions: 9,
             activeColor: AppTheme.goldPrimary,
             inactiveColor: AppTheme.surfaceLowest,
             onChanged: (val) => setState(() => _tapYield = val),
+          ),
+
+          // Passive Cloud Rate Slider
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Passive Cloud Mining Rate', style: TextStyle(color: AppTheme.textMuted, fontSize: 12)),
+              Text(
+                '+${_passiveYield.toStringAsFixed(4)} JWC / hour',
+                style: const TextStyle(
+                  fontFamily: 'JetBrains Mono',
+                  color: AppTheme.goldAmber,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: _passiveYield.clamp(0.0010, 0.0100),
+            min: 0.0010,
+            max: 0.0100,
+            divisions: 9,
+            activeColor: AppTheme.goldAmber,
+            inactiveColor: AppTheme.surfaceLowest,
+            onChanged: (val) => setState(() => _passiveYield = val),
+          ),
+
+          // Daily Mining Cap Slider (Anti-Hyperinflation Ceiling)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Daily Mining Hard Cap', style: TextStyle(color: AppTheme.textMuted, fontSize: 12)),
+              Text(
+                '${_dailyMiningCap.toStringAsFixed(2)} JWC / 24h',
+                style: const TextStyle(
+                  fontFamily: 'JetBrains Mono',
+                  color: AppTheme.emeraldPositive,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: _dailyMiningCap.clamp(0.05, 0.50),
+            min: 0.05,
+            max: 0.50,
+            divisions: 9,
+            activeColor: AppTheme.emeraldPositive,
+            inactiveColor: AppTheme.surfaceLowest,
+            onChanged: (val) => setState(() => _dailyMiningCap = val),
           ),
 
           // Max Energy Slider
@@ -373,7 +436,7 @@ class _AdminScreenState extends State<AdminScreen> {
                 '$_maxEnergy Energy',
                 style: const TextStyle(
                   fontFamily: 'JetBrains Mono',
-                  color: AppTheme.goldAmber,
+                  color: AppTheme.goldChampagne,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -384,9 +447,31 @@ class _AdminScreenState extends State<AdminScreen> {
             min: 500,
             max: 5000,
             divisions: 9,
-            activeColor: AppTheme.goldAmber,
+            activeColor: AppTheme.goldChampagne,
             inactiveColor: AppTheme.surfaceLowest,
             onChanged: (val) => setState(() => _maxEnergy = val.toInt()),
+          ),
+
+          // Treasury Protection Notice Card
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceLowest,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppTheme.emeraldPositive.withAlpha(50)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.verified_user_rounded, color: AppTheme.emeraldPositive, size: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Treasury Safety: At 5 JWC activation, a ${_dailyMiningCap.toStringAsFixed(2)} JWC daily limit means users require ${(5.0 / _dailyMiningCap).toStringAsFixed(0)}+ active days to break even. The platform preserves 100% of user activation payments.',
+                    style: const TextStyle(color: AppTheme.textLight, fontSize: 10, height: 1.35),
+                  ),
+                ),
+              ],
+            ),
           ),
 
           const Padding(
@@ -516,6 +601,60 @@ class _AdminScreenState extends State<AdminScreen> {
             ],
           ),
           const SizedBox(height: 12),
+
+          // Admin Receiving Wallet Address (USDT / WBNB BEP-20)
+          const Text('Admin Receiving Wallet (USDT / WBNB BEP-20)', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceLowest,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppTheme.goldPrimary.withAlpha(80)),
+            ),
+            child: TextField(
+              controller: _adminWalletCtrl,
+              style: const TextStyle(
+                fontFamily: 'JetBrains Mono',
+                color: AppTheme.goldChampagne,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isDense: true,
+                hintText: '0x... BEP-20 receiving wallet',
+                hintStyle: TextStyle(color: AppTheme.textMuted, fontSize: 11),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // WBNB Market Price Slider
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('WBNB Benchmark Price', style: TextStyle(color: AppTheme.textMuted, fontSize: 12)),
+              Text(
+                '\$${_wbnbPrice.toStringAsFixed(2)} USDT',
+                style: const TextStyle(
+                  fontFamily: 'JetBrains Mono',
+                  color: AppTheme.goldAmber,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          Slider(
+            value: _wbnbPrice,
+            min: 200.0,
+            max: 1200.0,
+            divisions: 100,
+            activeColor: AppTheme.goldAmber,
+            inactiveColor: AppTheme.surfaceLowest,
+            onChanged: (val) => setState(() => _wbnbPrice = val),
+          ),
+          const SizedBox(height: 6),
 
           // Price Slider
           Row(

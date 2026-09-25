@@ -3,15 +3,24 @@ import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
 import '../models/app_config.dart';
 import '../utils/platform_link.dart';
+import '../services/storage_service.dart';
 
 class AssetsScreen extends StatefulWidget {
   final double jwcBalance;
+  final double usdtBalance;
+  final double wbnbBalance;
   final Function(double deltaJwc) onBalanceUpdated;
+  final Function({required String token, required double amount, required String txHash}) onDepositConfirmed;
+  final VoidCallback? onNavigateToTrade;
 
   const AssetsScreen({
     super.key,
     required this.jwcBalance,
+    required this.usdtBalance,
+    required this.wbnbBalance,
     required this.onBalanceUpdated,
+    required this.onDepositConfirmed,
+    this.onNavigateToTrade,
   });
 
   @override
@@ -20,15 +29,18 @@ class AssetsScreen extends StatefulWidget {
 
 class _AssetsScreenState extends State<AssetsScreen> {
   bool _hideBalance = false;
-  int _activeVaultTab = 0; // 0: Stake Vault, 1: Auto-Buy Deposit, 2: P2P Escrow
+  int _activeVaultTab = 0; // 0: Stake Vault, 1: Deposit & Buy, 2: P2P Escrow
 
   // Staking State (5 JWC min, 500 JWC max, 7+ days)
   final TextEditingController _stakeAmountController = TextEditingController(text: '5.0');
   int _selectedLockDays = 7;
 
-  // Auto-Buy State
-  String _payDepositToken = 'BNB';
-  final TextEditingController _depositAmountController = TextEditingController(text: '5.00');
+  // Deposit State
+  String _payDepositToken = 'USDT';
+  final TextEditingController _depositAmountController = TextEditingController(text: '15.00');
+  final TextEditingController _depositTxHashController = TextEditingController();
+  final TextEditingController _pancakeTxHashController = TextEditingController();
+  final TextEditingController _pancakeJwcAmountController = TextEditingController(text: '5.00');
 
   // P2P State
   final TextEditingController _p2pRecipientController = TextEditingController(text: '');
@@ -57,6 +69,9 @@ class _AssetsScreenState extends State<AssetsScreen> {
     AppConfig.instance.removeListener(_onConfigChanged);
     _stakeAmountController.dispose();
     _depositAmountController.dispose();
+    _depositTxHashController.dispose();
+    _pancakeTxHashController.dispose();
+    _pancakeJwcAmountController.dispose();
     _p2pRecipientController.dispose();
     _p2pAmountController.dispose();
     _p2pNoteController.dispose();
@@ -235,16 +250,37 @@ class _AssetsScreenState extends State<AssetsScreen> {
     );
   }
 
-  void _executeAutoBuyDeposit() {
+  void _executeAdminWalletDeposit() {
     final double? payAmt = double.tryParse(_depositAmountController.text);
-    if (payAmt == null || payAmt <= 0) return;
+    if (payAmt == null || payAmt <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppTheme.rubyNegative,
+          content: Text('Please enter a valid deposit amount.'),
+        ),
+      );
+      return;
+    }
 
-    HapticFeedback.mediumImpact();
-    final double addedJwc = _payDepositToken == 'BNB'
-        ? (payAmt * 600.0) / AppConfig.instance.jwcPriceUsdt
-        : payAmt / AppConfig.instance.jwcPriceUsdt;
+    final String txHash = _depositTxHashController.text.trim();
+    if (txHash.isEmpty || txHash.length < 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppTheme.rubyNegative,
+          content: Text('Please paste a valid BSC Transaction Hash (0x...) from your wallet transfer.'),
+        ),
+      );
+      return;
+    }
 
-    widget.onBalanceUpdated(addedJwc);
+    HapticFeedback.heavyImpact();
+    widget.onDepositConfirmed(
+      token: _payDepositToken,
+      amount: payAmt,
+      txHash: txHash,
+    );
+
+    _depositTxHashController.clear();
 
     showDialog(
       context: context,
@@ -256,32 +292,40 @@ class _AssetsScreenState extends State<AssetsScreen> {
         ),
         title: const Row(
           children: [
-            Icon(Icons.bolt_rounded, color: AppTheme.goldPrimary, size: 24),
+            Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive, size: 24),
             SizedBox(width: 8),
-            Text('PancakeSwap Purchase Complete!', style: TextStyle(color: AppTheme.goldChampagne, fontSize: 15)),
+            Text('Deposit Credited & Verified!', style: TextStyle(color: AppTheme.goldChampagne, fontSize: 15)),
           ],
         ),
-        content: Text(
-          'Successfully routed $payAmt $_payDepositToken through PancakeSwap V3 (0.05% Pool). Credited +${addedJwc.toStringAsFixed(2)} JWC to your balance! (Mining permanently unlocked if >= 5 JWC).',
-          style: const TextStyle(color: AppTheme.textLight, fontSize: 13, height: 1.4),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Successfully received $payAmt $_payDepositToken to the Admin Receiving Wallet.\n\nYour in-app $_payDepositToken balance has been credited immediately. You can now use these funds to trade for JWC in the Trading terminal or swap to WBNB!',
+              style: const TextStyle(color: AppTheme.textLight, fontSize: 13, height: 1.4),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceLowest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'TxID: ${txHash.length > 20 ? "${txHash.substring(0, 10)}...${txHash.substring(txHash.length - 8)}" : txHash}',
+                style: const TextStyle(fontFamily: 'JetBrains Mono', color: AppTheme.goldChampagne, fontSize: 11),
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              openExternalUrl(AppConfig.instance.bscScanUrl);
+              openExternalUrl('https://bscscan.com/tx/$txHash');
             },
-            child: const Text('BSCSCAN', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              openExternalUrl(AppConfig.instance.pancakeSwapBuyUrl);
-            },
-            child: const Text(
-              'PANCAKESWAP',
-              style: TextStyle(color: AppTheme.goldPrimary, fontSize: 11, fontWeight: FontWeight.bold),
-            ),
+            child: const Text('VIEW ON BSCSCAN', style: TextStyle(color: AppTheme.goldPrimary, fontSize: 11, fontWeight: FontWeight.bold)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(),
@@ -291,6 +335,108 @@ class _AssetsScreenState extends State<AssetsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             ),
             child: const Text('DONE', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _executeVerifyPancakeSwapBuy() {
+    final double? boughtAmt = double.tryParse(_pancakeJwcAmountController.text);
+    if (boughtAmt == null || boughtAmt <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppTheme.rubyNegative,
+          content: Text('Please enter the JWC amount purchased on PancakeSwap.'),
+        ),
+      );
+      return;
+    }
+
+    final String txHash = _pancakeTxHashController.text.trim();
+    if (txHash.isEmpty || txHash.length < 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppTheme.rubyNegative,
+          content: Text('Please enter the BSC Transaction Hash (0x...) of your PancakeSwap swap.'),
+        ),
+      );
+      return;
+    }
+
+    HapticFeedback.heavyImpact();
+    widget.onBalanceUpdated(boughtAmt);
+
+    // Save transaction receipt
+    StorageService.instance.addDepositTransaction(
+      token: 'JWC (PancakeSwap)',
+      amount: boughtAmt,
+      txHash: txHash,
+      status: 'VERIFIED_ON_CHAIN',
+    );
+
+    // Unlock mining if >= 5 JWC
+    final totalDep = StorageService.instance.loadUserDepositedJwc() + boughtAmt;
+    StorageService.instance.saveUserDepositedJwc(totalDep);
+    if (totalDep >= 5.0) {
+      StorageService.instance.saveMiningUnlocked(true);
+    }
+
+    _pancakeTxHashController.clear();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.surfaceElevated,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppTheme.goldPrimary),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.verified_rounded, color: AppTheme.emeraldPositive, size: 24),
+            SizedBox(width: 8),
+            Text('PancakeSwap Swap Verified!', style: TextStyle(color: AppTheme.goldChampagne, fontSize: 15)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Successfully verified purchase of +${boughtAmt.toStringAsFixed(2)} JWC on PancakeSwap DEX! Tokens have been credited to your Telegram Vault.\n\n${totalDep >= 5.0 ? "⚡ VIP Mining Rig is now PERMANENTLY UNLOCKED!" : "Note: Deposit or buy at least 5 JWC to unlock mining."}',
+              style: const TextStyle(color: AppTheme.textLight, fontSize: 13, height: 1.4),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceLowest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'TxID: ${txHash.length > 20 ? "${txHash.substring(0, 10)}...${txHash.substring(txHash.length - 8)}" : txHash}',
+                style: const TextStyle(fontFamily: 'JetBrains Mono', color: AppTheme.goldChampagne, fontSize: 11),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              openExternalUrl('https://bscscan.com/tx/$txHash');
+            },
+            child: const Text('BSCSCAN', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.goldPrimary,
+              foregroundColor: AppTheme.obsidian,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            ),
+            child: const Text('VIEW VAULT', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 11)),
           ),
         ],
       ),
@@ -662,8 +808,8 @@ class _AssetsScreenState extends State<AssetsScreen> {
       ),
       child: Row(
         children: [
-          _buildTabItem(0, '⚡ STAKE (5-500 JWC)', Icons.lock_clock_rounded),
-          _buildTabItem(1, '🥞 BUY JWC', Icons.shopping_cart_rounded),
+          _buildTabItem(0, '⚡ STAKE (5-500)', Icons.lock_clock_rounded),
+          _buildTabItem(1, '📥 DEPOSIT & BUY', Icons.account_balance_wallet_rounded),
           _buildTabItem(2, '🤝 P2P ESCROW', Icons.send_rounded),
         ],
       ),
@@ -1287,302 +1433,683 @@ class _AssetsScreenState extends State<AssetsScreen> {
   }
 
   Widget _buildAutoBuyDepositSection() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: AppTheme.luxuryCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final depositTxs = StorageService.instance.loadDepositTransactions();
+    final isWbnb = _payDepositToken == 'WBNB';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Card 1: Direct Admin Wallet Deposit (USDT & WBNB)
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: AppTheme.luxuryCardDecoration(glowing: true),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('🥞', style: TextStyle(fontSize: 14)),
-                  SizedBox(width: 6),
-                  Text(
-                    'PancakeSwap V3 Gateway',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      color: AppTheme.textLight,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                  const Row(
+                    children: [
+                      Icon(Icons.account_balance_wallet_rounded, color: AppTheme.goldPrimary, size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        'Admin Wallet Deposit',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          color: AppTheme.goldChampagne,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surfaceElevated,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppTheme.goldPrimary.withAlpha(90)),
+                    ),
+                    child: const Text(
+                      'BEP-20 ON-CHAIN',
+                      style: TextStyle(
+                        fontFamily: 'JetBrains Mono',
+                        color: AppTheme.goldPrimary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppTheme.goldPrimary,
-                  borderRadius: BorderRadius.circular(6),
+              const SizedBox(height: 8),
+              const Text(
+                'Deposit BEP-20 USDT or WBNB directly to the project liquidity receiving wallet. Once sent from Trust Wallet, MetaMask, or Binance, paste your Transaction Hash below to credit your in-app balance.',
+                style: TextStyle(color: AppTheme.textMuted, fontSize: 11, height: 1.4),
+              ),
+              const SizedBox(height: 14),
+
+              // Token Selection Pills
+              const Text(
+                'SELECT DEPOSIT ASSET',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  color: AppTheme.textMuted,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.8,
                 ),
-                child: const Text(
-                  '1-CLICK AUTO-BUY',
-                  style: TextStyle(
-                    color: AppTheme.obsidian,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: ['USDT', 'WBNB'].map((tok) {
+                  final isSel = tok == _payDepositToken;
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() {
+                          _payDepositToken = tok;
+                          _depositAmountController.text = tok == 'USDT' ? '15.00' : '0.05';
+                        });
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(right: tok == 'USDT' ? 8 : 0),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isSel ? AppTheme.goldPrimary : AppTheme.surfaceLowest,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: isSel ? AppTheme.goldPrimary : Colors.white12,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$tok (BEP-20)',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              color: isSel ? AppTheme.obsidian : AppTheme.textLight,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 14),
+
+              // Admin Receiving Address Box
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceLowest,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppTheme.goldPrimary.withAlpha(60)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'PROJECT RECEIVING WALLET (BEP-20)',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: AppTheme.goldChampagne,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        Text(
+                          'BNB CHAIN ONLY',
+                          style: TextStyle(
+                            fontFamily: 'JetBrains Mono',
+                            color: AppTheme.goldAmber,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SelectableText(
+                            AppConfig.instance.adminDepositWalletAddress,
+                            style: const TextStyle(
+                              fontFamily: 'JetBrains Mono',
+                              color: AppTheme.textLight,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () {
+                            Clipboard.setData(ClipboardData(text: AppConfig.instance.adminDepositWalletAddress));
+                            HapticFeedback.lightImpact();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                backgroundColor: AppTheme.surfaceElevated,
+                                content: Row(
+                                  children: [
+                                    Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive, size: 16),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Receiving address copied to clipboard!',
+                                      style: TextStyle(color: AppTheme.goldChampagne, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: AppTheme.surfaceElevated,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: AppTheme.goldPrimary.withAlpha(100)),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.copy_rounded, color: AppTheme.goldPrimary, size: 12),
+                                SizedBox(width: 4),
+                                Text(
+                                  'COPY',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    color: AppTheme.goldPrimary,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Amount Input
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'DEPOSIT AMOUNT ($_payDepositToken)',
+                    style: const TextStyle(
+                      fontFamily: 'Inter',
+                      color: AppTheme.textMuted,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  Text(
+                    'Balance: ${_payDepositToken == "USDT" ? widget.usdtBalance.toStringAsFixed(2) : widget.wbnbBalance.toStringAsFixed(4)} $_payDepositToken',
+                    style: const TextStyle(
+                      fontFamily: 'JetBrains Mono',
+                      color: AppTheme.goldChampagne,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceLowest,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.white12),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _depositAmountController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        style: const TextStyle(
+                          fontFamily: 'JetBrains Mono',
+                          color: AppTheme.goldPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                        ),
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                          hintText: '0.00',
+                          hintStyle: TextStyle(color: AppTheme.textMuted),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      _payDepositToken,
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        color: AppTheme.goldChampagne,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Quick Adder Buttons
+              Row(
+                children: (isWbnb ? [0.05, 0.1, 0.25, 0.5] : [15.0, 30.0, 50.0, 100.0]).map((add) {
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() {
+                          _depositAmountController.text = isWbnb ? add.toStringAsFixed(2) : add.toStringAsFixed(0);
+                        });
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 3),
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surfaceElevated,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: Colors.white12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            isWbnb ? '+$add' : '+\$$add',
+                            style: const TextStyle(
+                              fontFamily: 'JetBrains Mono',
+                              color: AppTheme.goldChampagne,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 14),
+
+              // Transaction Hash Input
+              const Text(
+                'BSC TRANSACTION HASH (TXID)',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  color: AppTheme.textMuted,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.8,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceLowest,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.white12),
+                ),
+                child: TextField(
+                  controller: _depositTxHashController,
+                  style: const TextStyle(
+                    fontFamily: 'JetBrains Mono',
+                    color: AppTheme.textLight,
+                    fontSize: 12,
+                  ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                    hintText: 'Paste BSC TxID (0x...)',
+                    hintStyle: TextStyle(color: AppTheme.textMuted, fontSize: 11),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Submit Deposit CTA
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _executeAdminWalletDeposit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.goldPrimary,
+                    foregroundColor: AppTheme.obsidian,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.check_circle_outline_rounded, size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        'SUBMIT DEPOSIT & CREDIT $_payDepositToken',
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+        ),
+        const SizedBox(height: 14),
 
-          // Pay With Token Pills
-          Row(
-            children: ['BNB', 'USDT', 'BUSD', 'WBNB'].map((tok) {
-              final isSel = tok == _payDepositToken;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _payDepositToken = tok),
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 2),
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    decoration: BoxDecoration(
-                      color: isSel ? AppTheme.goldPrimary : AppTheme.surfaceLowest,
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: isSel ? AppTheme.goldPrimary : Colors.white.withAlpha(10),
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        tok,
+        // Card 2: Buy on PancakeSwap DEX (V3 & V2 Pool)
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: AppTheme.luxuryCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Row(
+                    children: [
+                      Text('🥞', style: TextStyle(fontSize: 16)),
+                      SizedBox(width: 8),
+                      Text(
+                        'PancakeSwap DEX Gateway',
                         style: TextStyle(
-                          color: isSel ? AppTheme.obsidian : AppTheme.textMuted,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter',
+                          color: AppTheme.textLight,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 10),
-
-          // Deposit Input
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppTheme.surfaceLowest,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.white.withAlpha(15)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _depositAmountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    style: const TextStyle(
-                      fontFamily: 'JetBrains Mono',
-                      color: AppTheme.textLight,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      hintText: '0.00',
-                    ),
-                  ),
-                ),
-                Text(
-                  _payDepositToken,
-                  style: const TextStyle(
-                    color: AppTheme.goldPrimary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Quick Adder Buttons
-          Row(
-            children: [0.5, 1.0, 2.5, 5.0].map((add) {
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    _depositAmountController.text = add.toStringAsFixed(1);
-                    setState(() {});
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 2),
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppTheme.surfaceLow,
+                      color: AppTheme.goldPrimary.withAlpha(30),
                       borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: AppTheme.goldPrimary),
                     ),
-                    child: Center(
-                      child: Text(
-                        '+$add',
-                        style: const TextStyle(
-                          fontFamily: 'JetBrains Mono',
-                          color: AppTheme.textMuted,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                    child: const Text(
+                      'OFFICIAL DEX',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        color: AppTheme.goldPrimary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Buy JWC non-custodially on PancakeSwap at \$${AppConfig.instance.jwcPriceUsdt.toStringAsFixed(2)} USDT per token. Buying >= 5 JWC permanently activates your Mining Rig!',
+                style: const TextStyle(color: AppTheme.textMuted, fontSize: 11, height: 1.4),
+              ),
+              const SizedBox(height: 12),
+
+              // PancakeSwap Direct Links
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => openExternalUrl(AppConfig.instance.pancakeSwapBuyUrl),
+                      icon: const Text('🥞', style: TextStyle(fontSize: 13)),
+                      label: const Text(
+                        'BUY WITH USDT',
+                        style: TextStyle(fontFamily: 'Inter', fontSize: 10, fontWeight: FontWeight.w800, color: AppTheme.goldPrimary),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppTheme.goldPrimary),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => openExternalUrl(AppConfig.instance.pancakeSwapBuyWithWbnbUrl),
+                      icon: const Text('🥞', style: TextStyle(fontSize: 13)),
+                      label: const Text(
+                        'BUY WITH WBNB',
+                        style: TextStyle(fontFamily: 'Inter', fontSize: 10, fontWeight: FontWeight.w800, color: AppTheme.goldPrimary),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppTheme.goldPrimary),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              // Import and Verify Sub-card
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceLowest,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.white12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'ALREADY BOUGHT ON PANCAKESWAP? VERIFY & IMPORT',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        color: AppTheme.goldChampagne,
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppTheme.surfaceElevated,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: TextField(
+                              controller: _pancakeJwcAmountController,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              style: const TextStyle(fontFamily: 'JetBrains Mono', color: AppTheme.goldPrimary, fontSize: 12, fontWeight: FontWeight.bold),
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                isDense: true,
+                                hintText: 'JWC Amount (e.g. 5)',
+                                hintStyle: TextStyle(color: AppTheme.textMuted, fontSize: 10),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 3,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppTheme.surfaceElevated,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: TextField(
+                              controller: _pancakeTxHashController,
+                              style: const TextStyle(fontFamily: 'JetBrains Mono', color: AppTheme.textLight, fontSize: 11),
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                isDense: true,
+                                hintText: 'TxID (0x...)',
+                                hintStyle: TextStyle(color: AppTheme.textMuted, fontSize: 10),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _executeVerifyPancakeSwapBuy,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.emeraldPositive,
+                          foregroundColor: AppTheme.obsidian,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        child: const Text(
+                          'VERIFY ON-CHAIN & CREDIT JWC',
+                          style: TextStyle(fontFamily: 'Inter', fontSize: 11, fontWeight: FontWeight.w900),
                         ),
                       ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 12),
-
-          // Staking Bonus Banner
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppTheme.surfaceLow,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: AppTheme.goldAmber.withAlpha(30)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.lock_clock_rounded, color: AppTheme.goldAmber, size: 14),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    'Direct Auto-Stake: +${AppConfig.instance.stakingApy.toStringAsFixed(1)}% APY starts accumulating instantly.',
-                    style: const TextStyle(color: AppTheme.goldChampagne, fontSize: 10),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // BEP-20 Contract Row
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppTheme.surfaceLowest,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.white.withAlpha(15)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'BEP-20 Contract',
-                  style: TextStyle(color: AppTheme.textMuted, fontSize: 11),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Clipboard.setData(ClipboardData(text: AppConfig.instance.contractAddress));
-                        HapticFeedback.lightImpact();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: AppTheme.surfaceElevated,
-                            content: Row(
-                              children: [
-                                Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive, size: 16),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Contract copied: 0xfEEE...9e99',
-                                  style: TextStyle(color: AppTheme.goldChampagne, fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            AppConfig.instance.shortContractAddress,
-                            style: const TextStyle(
-                              fontFamily: 'JetBrains Mono',
-                              color: AppTheme.goldChampagne,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(Icons.copy_rounded, color: AppTheme.goldAmber, size: 11),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () {
-                        HapticFeedback.lightImpact();
-                        openExternalUrl(AppConfig.instance.bscScanUrl);
-                      },
-                      child: const Icon(Icons.travel_explore_rounded, color: AppTheme.goldPrimary, size: 13),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // CTA Button
-          ElevatedButton(
-            onPressed: _executeAutoBuyDeposit,
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              backgroundColor: AppTheme.goldPrimary,
-              foregroundColor: AppTheme.obsidian,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('🥞', style: TextStyle(fontSize: 16)),
-                SizedBox(width: 6),
-                Text(
-                  'INSTANT AUTO-BUY & DEPOSIT',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 0.8),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Direct External PancakeSwap Link
-          OutlinedButton.icon(
-            onPressed: () {
-              final url = _payDepositToken == 'BNB'
-                  ? AppConfig.instance.pancakeSwapBuyWithBnbUrl
-                  : AppConfig.instance.pancakeSwapBuyUrl;
-              openExternalUrl(url);
-            },
-            icon: const Text('🥞', style: TextStyle(fontSize: 16)),
-            label: const Text(
-              'OPEN PANCAKESWAP V3 POOL',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.goldPrimary,
-                letterSpacing: 0.5,
               ),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppTheme.goldPrimary.withAlpha(140)),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
+            ],
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 14),
+
+        // Card 3: Deposit & Transaction History
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: AppTheme.luxuryCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'VERIFIED DEPOSITS & TRANSACTIONS',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      color: AppTheme.goldChampagne,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  Text(
+                    '${depositTxs.length} Records',
+                    style: const TextStyle(
+                      fontFamily: 'JetBrains Mono',
+                      color: AppTheme.textMuted,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              if (depositTxs.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceLowest,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white10),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'No deposit receipts recorded yet. Deposits to admin wallet or verified PancakeSwap purchases will appear here.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: AppTheme.textMuted, fontSize: 10.5, height: 1.3),
+                    ),
+                  ),
+                )
+              else
+                ...depositTxs.map((tx) {
+                  final token = tx['token'] ?? 'BEP-20';
+                  final amount = (tx['amount'] ?? 0.0).toString();
+                  final txHash = (tx['txHash'] ?? '').toString();
+                  final shortTx = txHash.length > 16 ? '${txHash.substring(0, 8)}...${txHash.substring(txHash.length - 6)}' : txHash;
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surfaceLowest,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive, size: 14),
+                            const SizedBox(width: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '+$amount $token',
+                                  style: const TextStyle(
+                                    fontFamily: 'JetBrains Mono',
+                                    color: AppTheme.textLight,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  shortTx,
+                                  style: const TextStyle(
+                                    fontFamily: 'JetBrains Mono',
+                                    color: AppTheme.textMuted,
+                                    fontSize: 9.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        if (txHash.isNotEmpty)
+                          IconButton(
+                            icon: const Icon(Icons.open_in_new_rounded, color: AppTheme.goldPrimary, size: 14),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: () => openExternalUrl('https://bscscan.com/tx/$txHash'),
+                          ),
+                      ],
+                    ),
+                  );
+                }),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

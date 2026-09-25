@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
 import '../models/app_config.dart';
 import '../utils/platform_link.dart';
+import '../services/storage_service.dart';
 
 class MiningScreen extends StatefulWidget {
   final double initialFarmed;
@@ -27,6 +28,7 @@ class MiningScreen extends StatefulWidget {
 class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderStateMixin {
   late double _totalFarmed;
   double _unclaimedYield = 0.0;
+  double _dailyMined = 0.0;
   int _currentEnergy = 940;
   int get _maxEnergy => AppConfig.instance.maxEnergy;
   double get _hashrateGhs => AppConfig.instance.baseHashrateGhs;
@@ -41,23 +43,46 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
     AppConfig.instance.addListener(_onConfigChanged);
-    _totalFarmed = widget.initialFarmed;
+    _totalFarmed = StorageService.instance.loadMiningTotalFarmed();
+    _unclaimedYield = StorageService.instance.loadMiningUnclaimed();
+    _dailyMined = StorageService.instance.loadDailyMinedAmount();
+    _currentEnergy = StorageService.instance.loadMiningEnergy();
     _orbitController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 20),
     )..repeat();
 
-    // Idle cloud mining yield generator (active only if 5 JWC gate is unlocked)
+    // Sustainable idle cloud mining generator (active only if 5 JWC gate is unlocked)
     _idleMiningTimer = Timer.periodic(const Duration(milliseconds: 1200), (timer) {
       if (mounted) {
         if (!AppConfig.instance.canUserMine) return;
+        final dailyCap = AppConfig.instance.dailyMiningCapJwc;
+        if (_dailyMined >= dailyCap) {
+          if (_currentEnergy < _maxEnergy) {
+            setState(() {
+              _currentEnergy = min(_maxEnergy, _currentEnergy + 1);
+            });
+            StorageService.instance.saveMiningEnergy(_currentEnergy);
+          }
+          return;
+        }
+
+        // 3000 ticks of 1.2s in one hour (e.g. 0.0030 JWC / 3000 = 0.000001 JWC / tick)
+        final tickYield = AppConfig.instance.passiveYieldPerHour / 3000.0;
+        final actualYield = min(tickYield, dailyCap - _dailyMined);
+
         setState(() {
-          _totalFarmed += 0.0034;
-          _unclaimedYield += 0.0034;
+          _totalFarmed += actualYield;
+          _unclaimedYield += actualYield;
+          _dailyMined += actualYield;
           if (_currentEnergy < _maxEnergy) {
             _currentEnergy = min(_maxEnergy, _currentEnergy + 1);
           }
         });
+        StorageService.instance.saveMiningTotalFarmed(_totalFarmed);
+        StorageService.instance.saveMiningUnclaimed(_unclaimedYield);
+        StorageService.instance.saveMiningEnergy(_currentEnergy);
+        StorageService.instance.saveDailyMinedAmount(_dailyMined);
       }
     });
   }
@@ -81,6 +106,22 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
       return;
     }
 
+    final double dailyCap = AppConfig.instance.dailyMiningCapJwc;
+    if (_dailyMined >= dailyCap) {
+      HapticFeedback.selectionClick();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppTheme.goldAmber,
+          content: Text(
+            'Daily mining limit reached (${dailyCap.toStringAsFixed(2)} JWC/day) to protect platform liquidity. Resets tomorrow at 00:00 UTC.',
+            style: const TextStyle(color: AppTheme.obsidian, fontWeight: FontWeight.bold),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     if (_currentEnergy < 1) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -91,6 +132,8 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
       return;
     }
 
+    final double tapReward = AppConfig.instance.tapYield;
+    final double actualReward = min(tapReward, dailyCap - _dailyMined);
     HapticFeedback.lightImpact();
 
     final randomOffset = Offset(
@@ -100,9 +143,9 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
 
     setState(() {
       _currentEnergy = max(0, _currentEnergy - 2);
-      final reward = AppConfig.instance.tapYield;
-      _totalFarmed += reward;
-      _unclaimedYield += reward;
+      _totalFarmed += actualReward;
+      _unclaimedYield += actualReward;
+      _dailyMined += actualReward;
       _coinScale = 0.94;
 
       _particles.add(
@@ -112,6 +155,10 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
         ),
       );
     });
+    StorageService.instance.saveMiningTotalFarmed(_totalFarmed);
+    StorageService.instance.saveMiningUnclaimed(_unclaimedYield);
+    StorageService.instance.saveMiningEnergy(_currentEnergy);
+    StorageService.instance.saveDailyMinedAmount(_dailyMined);
 
     Future.delayed(const Duration(milliseconds: 90), () {
       if (mounted) {
@@ -126,12 +173,28 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
       return;
     }
 
-    if (_unclaimedYield <= 0.5) return;
+    final minClaim = AppConfig.instance.minClaimThreshold;
+    if (_unclaimedYield < minClaim) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppTheme.surfaceElevated,
+          content: Text(
+            'Minimum claim threshold is ${minClaim.toStringAsFixed(2)} JWC (Current: ${_unclaimedYield.toStringAsFixed(4)} JWC).',
+            style: const TextStyle(color: AppTheme.goldChampagne),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     HapticFeedback.mediumImpact();
     final claimed = _unclaimedYield;
     setState(() {
       _unclaimedYield = 0.0;
     });
+    StorageService.instance.saveMiningUnclaimed(0.0);
+    StorageService.instance.saveMiningTotalFarmed(_totalFarmed);
     widget.onYieldClaimed(claimed);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -142,7 +205,7 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
             const Icon(Icons.stars_rounded, color: AppTheme.goldPrimary),
             const SizedBox(width: 8),
             Text(
-              'Claimed +${claimed.toStringAsFixed(2)} JWC to Vault!',
+              'Claimed +${claimed.toStringAsFixed(4)} JWC to Vault!',
               style: const TextStyle(color: AppTheme.goldChampagne, fontWeight: FontWeight.bold),
             ),
           ],
@@ -300,33 +363,23 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
                 ),
                 const SizedBox(height: 18),
 
-                // Primary Action: Instant Activate (Buy 5 JWC)
+                // Primary Action: Open PancakeSwap DEX to Buy Required 5 JWC
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: () {
-                      Navigator.of(ctx).pop();
-                      final needed = (threshold - deposited).clamp(1.0, threshold);
-                      widget.onDirectActivationPurchase?.call(needed);
-                      HapticFeedback.heavyImpact();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          backgroundColor: AppTheme.surfaceElevated,
-                          content: Row(
-                            children: [
-                              const Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  'Mining Rig Activated! +${needed.toStringAsFixed(1)} JWC deposited.',
-                                  style: const TextStyle(color: AppTheme.goldChampagne, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+                      openExternalUrl(config.pancakeSwapBuyUrl);
                     },
+                    icon: const Text('🥞', style: TextStyle(fontSize: 18)),
+                    label: Text(
+                      'BUY ${threshold.toStringAsFixed(0)} JWC ON PANCAKESWAP DEX (≈ \$${costUsdt.toStringAsFixed(2)})',
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.goldPrimary,
                       foregroundColor: AppTheme.obsidian,
@@ -335,53 +388,13 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
                       elevation: 6,
                       shadowColor: AppTheme.goldPrimary.withAlpha(100),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.bolt_rounded, size: 18, color: AppTheme.obsidian),
-                        const SizedBox(width: 6),
-                        Text(
-                          'INSTANT ACTIVATE (BUY ${threshold.toStringAsFixed(0)} JWC • \$${costUsdt.toStringAsFixed(2)})',
-                          style: const TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w900,
-                            fontSize: 12,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
 
-                // Secondary Action Row: Trade Screen or Deposit Screen
+                // Secondary Action Row: Deposit Vault or Trade Terminal
                 Row(
                   children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.of(ctx).pop();
-                          widget.onNavigateToTab?.call(0); // Trade Terminal
-                        },
-                        icon: const Icon(Icons.candlestick_chart_rounded, size: 14, color: AppTheme.goldChampagne),
-                        label: const Text(
-                          'TRADE TERMINAL',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            color: AppTheme.goldChampagne,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: AppTheme.goldPrimary.withAlpha(80)),
-                          padding: const EdgeInsets.symmetric(vertical: 11),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () {
@@ -405,72 +418,162 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
                         ),
                       ),
                     ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                          widget.onNavigateToTab?.call(0); // Trade Terminal
+                        },
+                        icon: const Icon(Icons.candlestick_chart_rounded, size: 14, color: AppTheme.goldChampagne),
+                        label: const Text(
+                          'TRADE TERMINAL',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: AppTheme.goldChampagne,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: AppTheme.goldPrimary.withAlpha(80)),
+                          padding: const EdgeInsets.symmetric(vertical: 11),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
 
-                // PancakeSwap External Direct Link
+                // Bought on PancakeSwap Sync / Verify Button
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
+                  child: TextButton.icon(
                     onPressed: () {
-                      openExternalUrl(config.pancakeSwapBuyUrl);
+                      Navigator.of(ctx).pop();
+                      _showPancakeSwapVerifyDialog();
                     },
-                    icon: const Text('🥞', style: TextStyle(fontSize: 15)),
+                    icon: const Icon(Icons.verified_rounded, size: 15, color: AppTheme.emeraldPositive),
                     label: const Text(
-                      'BUY JWC ON PANCAKESWAP DEX',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
-                      ),
+                      'Already bought on PancakeSwap? Verify Tx Hash to Unlock',
+                      style: TextStyle(color: AppTheme.emeraldPositive, fontSize: 11, fontWeight: FontWeight.w700),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.surfaceElevated,
-                      foregroundColor: AppTheme.goldPrimary,
-                      side: const BorderSide(color: AppTheme.goldPrimary, width: 1),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-
-                // Bought on PancakeSwap Sync Button
-                TextButton.icon(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    widget.onDirectActivationPurchase?.call(5.0);
-                    HapticFeedback.heavyImpact();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        backgroundColor: AppTheme.surfaceElevated,
-                        content: Row(
-                          children: [
-                            Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'PancakeSwap Purchase Synced: +5.0 JWC! Node unlocked.',
-                                style: TextStyle(color: AppTheme.goldChampagne, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.verified_rounded, size: 14, color: AppTheme.emeraldPositive),
-                  label: const Text(
-                    'Already bought on PancakeSwap? Click to Sync & Unlock',
-                    style: TextStyle(color: AppTheme.emeraldPositive, fontSize: 11, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showPancakeSwapVerifyDialog() {
+    final txCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.surfaceCharcoal,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: AppTheme.goldPrimary, width: 1.2),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive, size: 22),
+            SizedBox(width: 8),
+            Text(
+              'Verify PancakeSwap Buy',
+              style: TextStyle(color: AppTheme.goldChampagne, fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Enter your BSC Transaction Hash (TxID) to verify your PancakeSwap purchase and permanently unlock mining rigs:',
+              style: TextStyle(color: AppTheme.textMuted, fontSize: 12, height: 1.4),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceLowest,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.goldPrimary.withAlpha(80)),
+              ),
+              child: TextField(
+                controller: txCtrl,
+                style: const TextStyle(
+                  fontFamily: 'JetBrains Mono',
+                  color: AppTheme.goldChampagne,
+                  fontSize: 11,
+                ),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  hintText: '0x... (BSC Transaction Hash)',
+                  hintStyle: TextStyle(color: AppTheme.textMuted, fontSize: 11),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('CANCEL', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final tx = txCtrl.text.trim();
+              if (tx.isEmpty || !tx.startsWith('0x') || tx.length < 10) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter a valid BSC transaction hash (starts with 0x)'),
+                    backgroundColor: AppTheme.crimsonNegative,
+                  ),
+                );
+                return;
+              }
+              Navigator.of(ctx).pop();
+              widget.onDirectActivationPurchase?.call(5.0);
+              StorageService.instance.saveMiningUnlocked(true);
+              StorageService.instance.addDepositTransaction(
+                token: 'JWC (PancakeSwap)',
+                amount: 5.0,
+                txHash: tx,
+                status: 'Verified',
+              );
+              HapticFeedback.heavyImpact();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  backgroundColor: AppTheme.surfaceElevated,
+                  content: Row(
+                    children: [
+                      Icon(Icons.check_circle_rounded, color: AppTheme.emeraldPositive),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'PancakeSwap Purchase Verified! +5.0 JWC credited & Mining Rig Activated!',
+                          style: TextStyle(color: AppTheme.goldChampagne, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.goldPrimary,
+              foregroundColor: AppTheme.obsidian,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            ),
+            child: const Text('VERIFY & UNLOCK', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+          ),
+        ],
       ),
     );
   }
@@ -631,7 +734,7 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
                           style: TextStyle(color: AppTheme.textMuted, fontSize: 11),
                         ),
                         Text(
-                          '+${_unclaimedYield.toStringAsFixed(2)} JWC',
+                          '+${_unclaimedYield.toStringAsFixed(4)} JWC',
                           style: const TextStyle(
                             fontFamily: 'JetBrains Mono',
                             color: AppTheme.goldChampagne,
@@ -656,6 +759,45 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surfaceElevated,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _dailyMined >= AppConfig.instance.dailyMiningCapJwc
+                            ? AppTheme.goldAmber.withAlpha(120)
+                            : Colors.white12,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _dailyMined >= AppConfig.instance.dailyMiningCapJwc
+                              ? Icons.lock_clock_rounded
+                              : Icons.speed_rounded,
+                          size: 12,
+                          color: _dailyMined >= AppConfig.instance.dailyMiningCapJwc
+                              ? AppTheme.goldAmber
+                              : AppTheme.emeraldPositive,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          '24h Cap: ${_dailyMined.toStringAsFixed(4)} / ${AppConfig.instance.dailyMiningCapJwc.toStringAsFixed(2)} JWC',
+                          style: TextStyle(
+                            fontFamily: 'JetBrains Mono',
+                            color: _dailyMined >= AppConfig.instance.dailyMiningCapJwc
+                                ? AppTheme.goldAmber
+                                : AppTheme.textMuted,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -977,7 +1119,7 @@ class _MiningScreenState extends State<MiningScreen> with SingleTickerProviderSt
                 Expanded(
                   child: _buildMetricTile(
                     'PASSIVE YIELD',
-                    AppConfig.instance.canUserMine ? '+34.5 JWC/h' : 'PAUSED (5 JWC)',
+                    AppConfig.instance.canUserMine ? '+${AppConfig.instance.passiveYieldPerHour.toStringAsFixed(4)} JWC/h' : 'PAUSED (5 JWC)',
                     Icons.trending_up_rounded,
                     AppConfig.instance.canUserMine ? AppTheme.goldAmber : AppTheme.textMuted,
                   ),
@@ -1169,7 +1311,7 @@ class _ParticleWidgetState extends State<_ParticleWidget> with SingleTickerProvi
                 const Icon(Icons.stars_rounded, color: AppTheme.goldPrimary, size: 16),
                 const SizedBox(width: 2),
                 Text(
-                  '+${AppConfig.instance.tapYield.toStringAsFixed(0)} JWC',
+                  '+${AppConfig.instance.tapYield.toStringAsFixed(4)} JWC',
                   style: const TextStyle(
                     fontFamily: 'JetBrains Mono',
                     color: AppTheme.goldChampagne,

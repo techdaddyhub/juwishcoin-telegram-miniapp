@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
 import 'models/app_config.dart';
+import 'services/storage_service.dart';
 import 'widgets/vip_header.dart';
 import 'screens/trading_screen.dart';
 import 'screens/mining_screen.dart';
@@ -45,6 +46,8 @@ class MainNavigationShell extends StatefulWidget {
 class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
   double _jwcBalance = 0.0;
+  double _usdtBalance = 0.0;
+  double _wbnbBalance = 0.0;
 
   final List<String> _screenTitles = [
     'Trade Terminal',
@@ -53,10 +56,23 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     'VIP Earn',
   ];
 
-  void _onSwapComplete(double deltaJwc, double deltaUsdt) {
+  @override
+  void initState() {
+    super.initState();
+    _jwcBalance = StorageService.instance.loadJwcBalance();
+    _usdtBalance = StorageService.instance.loadUsdtBalance();
+    _wbnbBalance = StorageService.instance.loadWbnbBalance();
+  }
+
+  void _onSwapComplete(double deltaJwc, double deltaUsdt, [double deltaWbnb = 0.0]) {
     setState(() {
-      _jwcBalance += deltaJwc;
+      _jwcBalance = (_jwcBalance + deltaJwc).clamp(0.0, double.infinity);
+      _usdtBalance = (_usdtBalance + deltaUsdt).clamp(0.0, double.infinity);
+      _wbnbBalance = (_wbnbBalance + deltaWbnb).clamp(0.0, double.infinity);
     });
+    StorageService.instance.saveJwcBalance(_jwcBalance);
+    StorageService.instance.saveUsdtBalance(_usdtBalance);
+    StorageService.instance.saveWbnbBalance(_wbnbBalance);
     if (deltaJwc > 0) {
       AppConfig.instance.recordDepositOrPurchase(deltaJwc);
     }
@@ -66,15 +82,44 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     setState(() {
       _jwcBalance += deltaJwc;
     });
+    StorageService.instance.saveJwcBalance(_jwcBalance);
   }
 
   void _onBalanceUpdated(double deltaJwc) {
     setState(() {
-      _jwcBalance += deltaJwc;
+      _jwcBalance = (_jwcBalance + deltaJwc).clamp(0.0, double.infinity);
     });
+    StorageService.instance.saveJwcBalance(_jwcBalance);
     if (deltaJwc > 0) {
       AppConfig.instance.recordDepositOrPurchase(deltaJwc);
     }
+  }
+
+  void _onDepositConfirmed({
+    required String token,
+    required double amount,
+    required String txHash,
+  }) {
+    setState(() {
+      if (token == 'USDT') {
+        _usdtBalance += amount;
+      } else if (token == 'WBNB' || token == 'BNB') {
+        _wbnbBalance += amount;
+      } else if (token == 'JWC') {
+        _jwcBalance += amount;
+        AppConfig.instance.recordDepositOrPurchase(amount);
+      }
+    });
+    StorageService.instance.saveJwcBalance(_jwcBalance);
+    StorageService.instance.saveUsdtBalance(_usdtBalance);
+    StorageService.instance.saveWbnbBalance(_wbnbBalance);
+
+    StorageService.instance.addDepositTransaction(
+      token: token,
+      amount: amount,
+      txHash: txHash,
+      status: 'VERIFIED_ON_CHAIN',
+    );
   }
 
   @override
@@ -82,7 +127,10 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     final List<Widget> screens = [
       TradingScreen(
         jwcBalance: _jwcBalance,
-        onSwapComplete: _onSwapComplete,
+        usdtBalance: _usdtBalance,
+        wbnbBalance: _wbnbBalance,
+        onSwapComplete: (deltaJwc, deltaUsdt, [deltaWbnb = 0.0]) => _onSwapComplete(deltaJwc, deltaUsdt, deltaWbnb),
+        onOpenDeposit: () => setState(() => _currentIndex = 2),
       ),
       MiningScreen(
         onYieldClaimed: _onYieldClaimed,
@@ -91,12 +139,17 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
           setState(() {
             _jwcBalance += jwcAmount;
           });
+          StorageService.instance.saveJwcBalance(_jwcBalance);
           AppConfig.instance.recordDepositOrPurchase(jwcAmount);
         },
       ),
       AssetsScreen(
         jwcBalance: _jwcBalance,
+        usdtBalance: _usdtBalance,
+        wbnbBalance: _wbnbBalance,
         onBalanceUpdated: _onBalanceUpdated,
+        onDepositConfirmed: _onDepositConfirmed,
+        onNavigateToTrade: () => setState(() => _currentIndex = 0),
       ),
       EarnScreen(
         jwcBalance: _jwcBalance,

@@ -54,7 +54,7 @@ All new JuwishCoin users start with a clean **0.00 JWC** wallet balance. Getting
 
 1. **Launch the Bot:** Open Telegram and start the official bot (`@juwishcoin_bot`). Tap **"Launch App"**.
 2. **Claim Day 1 Streak (+50 JWC):** Go to the **Earn** tab and claim your Day 1 reward (+50 JWC) to kickstart your portfolio immediately!
-3. **Buy or Deposit 5 JWC to Unlock Mining:** Head to the **Mine** tab. To prevent automated bot farms, users deposit or buy at least **5 JWC** (approx. **$15.00 USDT**) via PancakeSwap V3 or the instant in-app gateway. Once unlocked, tap the 3D Gold Medallion (+10 JWC/tap) and enjoy 24/7 passive cloud mining.
+3. **Buy or Deposit 5 JWC to Unlock Mining:** Head to the **Mine** tab. To prevent automated bot farms, users deposit or buy at least **5 JWC** (approx. **$15.00 USDT**) via PancakeSwap V3 or the instant in-app gateway. Once unlocked, tap the 3D Gold Medallion (+0.0001 JWC/tap) and enjoy 24/7 sustainable passive cloud mining (+0.0030 JWC/hr up to 0.15 JWC daily cap).
 4. **Stake for Passive Growth:** Deposit between 5 and 500 JWC into the **VIP Staking Vault** for 7+ days to earn sustainable yield (12% to 28% APY).
 5. **Trade & Cash Out:** Visit the **Trade** tab to swap tokens directly for USDT at the **$3.00** rate or buy/sell directly on PancakeSwap V3.
 
@@ -79,25 +79,29 @@ Before a user can begin tapping or earning passive cloud rig yield, they must bu
 * **PancakeSwap V3:** Buy directly on PancakeSwap V3 via the official contract link.
 
 ### Pillar A: Active Tap-to-Mine
-* **Tap Yield:** Every tap on the digital gold medallion extracts exactly **10.0 JWC**.
+* **Tap Yield:** Every tap on the digital gold medallion extracts **+0.0001 JWC** (calibrated to protect the platform treasury & liquidity).
 * **Energy Limit:** 1,000 Max Energy reserve per cycle.
 * **Auto-Regeneration:** Your energy meter refills automatically every second in real time. Once replenished, you can tap again.
 * **Kinetic Haptics:** Micro-vibrations accompany every tap to provide satisfying physical feedback and confirm valid mining hashes.
 
 ### Pillar B: 24/7 Virtual Cloud Mining Rigs (Offline Yield)
 * **ASIC Cloud Power:** Every user is equipped with an active virtual mining rig with **142.8 GH/s** hashrate.
-* **Passive Accumulation:** Generates **34.5 JWC per hour** (**828 JWC every 24 hours**) completely automatically — even when your phone is turned off or Telegram is closed!
-* **1-Tap Harvest:** Tap **"CLAIM & RESTART"** to collect all accumulated offline tokens straight into your available wallet balance.
+* **Passive Accumulation:** Generates **+0.0030 JWC per hour** (~**0.072 JWC every 24 hours**) completely automatically — even when your phone is turned off or Telegram is closed!
+* **Daily Hard Ceiling:** Hard-capped at **0.1500 JWC per 24 hours** total mining yield across taps and passive accumulation, ensuring the platform treasury and liquidity never bleed out.
+* **Minimum Harvest Threshold:** **0.0500 JWC** (~$0.15 USDT) minimum to harvest accumulated yields into your liquid wallet balance.
+* **1-Tap Harvest:** Tap **"CLAIM & RESTART"** once the threshold is reached to collect offline tokens straight into your available wallet balance.
 
 ### Mining Parameters Summary Table
 | Mining Metric | Parameter Value | Details |
 | :--- | :--- | :--- |
-| **Activation Gate** | **5.0 JWC Deposit/Buy** | One-time requirement to unlock node |
+| **Activation Gate** | **5.0 JWC Deposit/Buy** | One-time requirement to unlock node ($15.00 USDT) |
 | **Max Energy** | 1,000 Points | Auto-regenerates continuously |
-| **Active Tap Yield** | +10.0 JWC / Tap | 1,000 JWC per full energy cycle |
+| **Active Tap Yield** | +0.0001 JWC / Tap | High-precision micro-mining |
 | **Cloud Hashrate** | 142.8 GH/s | Running 24/7 on BSC cloud servers |
-| **Passive Hourly Output**| 34.5 JWC / Hour | 828 JWC / 24-hour cycle |
-| **Total Daily Potential**| **1,828+ JWC / Day** | For active daily miners |
+| **Passive Hourly Output**| +0.0030 JWC / Hour | ~0.072 JWC / 24-hour cycle |
+| **Daily Hard Cap** | **0.1500 JWC / 24h** | Absolute ceiling protecting platform assets |
+| **Min. Claim Threshold**| **0.0500 JWC** | Anti-dust claim threshold |
+| **Break-Even Period** | **33.3 to 69.4 Days** | Mathematical guarantee protecting treasury |
 
 ---
 
@@ -183,6 +187,14 @@ Transfer tokens directly to friends, business partners, or OTC buyers:
 
 ## 7. Earn Hub, Daily Streaks & VIP Referral Program
 
+### VIP Daily Quests (15 JWC Daily Pool)
+Complete community & trading engagement tasks every 24 hours to claim your share of **15 JWC ($45.00 USDT)**:
+* **Join Telegram Channel:** Subscribe to the official JWC community announcement channel $\rightarrow$ **+3.0 JWC**
+* **Follow on X / Twitter:** Follow @JuwishCoin on X $\rightarrow$ **+3.0 JWC**
+* **Boost Telegram Channel:** Grant 1 Telegram boost to unlock VIP community perks $\rightarrow$ **+4.0 JWC**
+* **Execute In-App Swaps:** Execute a token swap in the trading terminal $\rightarrow$ **+5.0 JWC**
+* **Total Daily Quest Allocation:** **15.0 JWC** (\$45.00 USDT at benchmark price)
+
 ### 7-Day Progressive Login Streak
 Logging in daily unlocks compounding token drops:
 * **Day 1:** +50 JWC
@@ -236,7 +248,7 @@ To manage, store, or trade JuwishCoin externally, follow these instructions to i
 ## 10. Frequently Asked Questions (FAQ)
 
 **Q1: How do I start mining JuwishCoin?**  
-To protect genuine users and block automated bot farms, users simply deposit or buy at least **5 JWC** (approx. $15.00 USDT at $3.00 price) once. After this 1-step activation, tap-to-mine (+10 JWC/tap) and 24/7 passive cloud mining (34.5 JWC/hr) unlock forever! You can also claim daily login streaks in the Earn tab.
+To protect genuine users and block automated bot farms, users simply deposit or buy at least **5 JWC** (approx. $15.00 USDT at $3.00 price) once. After this 1-step activation, tap-to-mine (+0.0001 JWC/tap) and 24/7 passive cloud mining (+0.0030 JWC/hr up to 0.15 JWC daily cap) unlock forever! You can also claim daily login streaks in the Earn tab.
 
 **Q2: What is the official contract address?**  
 `0xfEEEF79d2A97d9e1f9bcB8eBA8FD9587079C9e99` on BNB Smart Chain.

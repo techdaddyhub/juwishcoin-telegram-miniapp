@@ -315,7 +315,7 @@ def create_guide():
     doc.text.addElement(H(outlinelevel=1, stylename="ChapterHeading", text="Table of Contents"))
     add_bullet("What is JuwishCoin ($JWC), BNB Smart Chain BEP-20 architecture, and token specifications.", "1. Executive Summary & Token Architecture:")
     add_bullet("How beginners can launch the app, start mining, and earn tokens in under 60 seconds.", "2. Quick-Start Guide for Beginners:")
-    add_bullet("Active Tap-to-Mine, 1,000 Energy bar, 142.8 GH/s Cloud Hashrate, and 34.5 JWC/hr passive yield.", "3. Mining Mechanics (Tap & Cloud Rigs):")
+    add_bullet("Active Tap-to-Mine (+0.0001 JWC), 1,000 Energy bar, 142.8 GH/s Cloud Hashrate, and sustainable +0.0030 JWC/hr passive yield (0.15 JWC daily cap).", "3. Mining Mechanics (Tap & Cloud Rigs):")
     add_bullet("Fixed lock terms (7D to 90D), 5 to 500 JWC limits, sustainable APY (12% to 28%), and capital preservation.", "4. VIP Staking Vault (5 - 500 JWC • 7+ Days):")
     add_bullet("Order book, live Candlestick charts, buying JWC, and selling JWC at $3.00 on PancakeSwap V3.", "5. DEX Trading Terminal & $3.00 Cash-Out:")
     add_bullet("Multi-asset balances and instant zero-fee transfers via Telegram @username or BSC address.", "6. Assets Portfolio & P2P Escrow Transfers:")
@@ -369,7 +369,7 @@ def create_guide():
 
     add_bullet("Launch the JuwishCoin Mini App inside Telegram via the official bot link (@juwishcoin_bot).", "Step 1: Open the Mini App.")
     add_bullet("Navigate to the Earn tab to claim your Day 1 streak bonus (+50 JWC) to immediately start your portfolio.", "Step 2: Collect Day 1 Streak (+50 JWC).")
-    add_bullet("Head to the Mine tab. Activate your node by depositing or buying at least 5 JWC ($15.00 USDT) via PancakeSwap V3 or the in-app gateway. Once unlocked, tap to mine (+10 JWC) and earn 24/7 passive cloud rewards.", "Step 3: Activate Node & Start Mining.")
+    add_bullet("Head to the Mine tab. Activate your node by depositing or buying at least 5 JWC ($15.00 USDT) via PancakeSwap V3 or the in-app gateway. Once unlocked, tap to mine (+0.0001 JWC) and earn 24/7 passive cloud rewards (+0.0030 JWC/hr up to 0.15 JWC/24h cap).", "Step 3: Activate Node & Start Mining.")
     add_bullet("Deposit between 5 and 500 JWC into the VIP Vault for 7+ days to earn sustainable yield (12% to 28% APY).", "Step 4: Stake in the VIP Vault (5-500 JWC).")
     add_bullet("Open the Trade terminal to swap your tokens directly for USDT at the $3.00 rate or buy/sell directly on PancakeSwap V3.", "Step 5: Trade or Cash Out at $3.00.")
 
@@ -406,17 +406,19 @@ def create_guide():
         "This ensures that players in all timezones earn continuous rewards."
     )
     add_bullet("Base Cloud Hashrate: Every user starts with an active computing power of 142.8 GH/s.", "Cloud Hashrate:")
-    add_bullet("Passive Yield Rate: Generates 34.5 JWC per hour (828 JWC every 24-hour cycle) without requiring any screen interaction.", "Passive Hourly Yield:")
-    add_bullet("1-Tap Claim: Accumulated offline mining rewards can be harvested directly into your main wallet with a single button tap.", "Harvest Mechanism:")
+    add_bullet("Passive Yield Rate: Generates +0.0030 JWC per hour (~0.072 JWC every 24-hour cycle) without requiring any screen interaction.", "Passive Hourly Yield:")
+    add_bullet("Daily Hard Cap: Maximum mining yield is strictly capped at 0.1500 JWC per 24 hours across taps and passive accumulation, safeguarding liquidity reserves.", "Treasury Protection Cap:")
+    add_bullet("Minimum Harvest Threshold: Requires a minimum of 0.0500 JWC (~$0.15 USDT) to harvest offline earnings into available wallet balance.", "Harvest Threshold:")
 
     add_table_2col([
         ("Mining Activation Gate", "5.0 JWC Deposit or Purchase (One-time unlock)"),
         ("Max Active Energy", "1,000 Points"),
-        ("Active Tap Reward", "+10.0 JWC / Tap"),
-        ("Full Energy Tap Yield", "1,000 JWC per full energy cycle"),
+        ("Active Tap Reward", "+0.0001 JWC / Tap"),
         ("Cloud ASIC Hashrate", "142.8 GH/s"),
-        ("Passive Cloud Output", "34.5 JWC / Hour (828 JWC / Day)"),
-        ("Total Estimated Daily Yield", "1,828+ JWC / Day for active miners"),
+        ("Passive Cloud Output", "+0.0030 JWC / Hour (~0.072 JWC / Day)"),
+        ("Daily Hard Ceiling", "0.1500 JWC / 24 Hours"),
+        ("Min. Claim Threshold", "0.0500 JWC (~$0.15 USDT)"),
+        ("Payback / Break-Even", "33.3 to 69.4 Days (Zero Capital Loss)"),
     ], headers=("Mining Metric", "Operational Value"))
 
     add_image("telegram_assets/screenshot_2_mining.png", width="12.0cm", height="6.75cm")
@@ -626,7 +628,7 @@ def create_guide():
 
     doc.text.addElement(H(outlinelevel=2, stylename="SectionHeading", text="Frequently Asked Questions"))
 
-    add_bullet("To safeguard genuine miners and prevent bot farms, users deposit or buy at least 5 JWC ($15.00 USDT) once. This permanently unlocks tap mining (+10 JWC/tap) and 24/7 cloud rigs (34.5 JWC/hr).", "Q1: How do I start mining JuwishCoin?")
+    add_bullet("To safeguard genuine miners and prevent bot farms, users deposit or buy at least 5 JWC ($15.00 USDT) once. This permanently unlocks tap mining (+0.0001 JWC/tap) and 24/7 sustainable cloud rigs (+0.0030 JWC/hr up to 0.15 JWC daily cap).", "Q1: How do I start mining JuwishCoin?")
     add_bullet("0xfEEEF79d2A97d9e1f9bcB8eBA8FD9587079C9e99 on BNB Smart Chain.", "Q2: What is the official contract address?")
     add_bullet("The default baseline trading rate is initialized at $3.0000 USDT per JWC, available on the internal Trade terminal and PancakeSwap V3.", "Q3: At what price can I trade or sell JWC?")
     add_bullet("Users can lock between 5 and 500 JWC for 7+ days (up to 90D) earning 12% to 28% APY. The vault preserves platform solvency while rewarding loyal holders.", "Q4: How does the Staking Vault work (5 - 500 JWC • 7+ Days)?")

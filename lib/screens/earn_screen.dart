@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
+import '../services/storage_service.dart';
 
 class EarnScreen extends StatefulWidget {
   final double jwcBalance;
@@ -22,10 +23,21 @@ class _EarnScreenState extends State<EarnScreen> {
 
   final String _referralLink = 'https://t.me/JuwishCoinBot/app?startapp=ref_whale777';
 
+  @override
+  void initState() {
+    super.initState();
+    _completedQuests.addAll(StorageService.instance.loadClaimedTasks());
+    _day1Claimed = _completedQuests.contains('__streak_day_1__');
+  }
+
   void _claimStreakDay1() {
     if (_day1Claimed) return;
     HapticFeedback.heavyImpact();
-    setState(() => _day1Claimed = true);
+    setState(() {
+      _day1Claimed = true;
+      _completedQuests.add('__streak_day_1__');
+    });
+    StorageService.instance.saveClaimedTasks(_completedQuests);
     widget.onRewardClaimed(50.0);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -49,6 +61,7 @@ class _EarnScreenState extends State<EarnScreen> {
     if (_completedQuests.contains(title)) return;
     HapticFeedback.mediumImpact();
     setState(() => _completedQuests.add(title));
+    StorageService.instance.saveClaimedTasks(_completedQuests);
     widget.onRewardClaimed(reward);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -346,21 +359,53 @@ class _EarnScreenState extends State<EarnScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'VIP DAILY QUESTS',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              color: AppTheme.goldChampagne,
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.8,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.military_tech_rounded, color: AppTheme.goldPrimary, size: 18),
+                  SizedBox(width: 6),
+                  Text(
+                    'VIP DAILY QUESTS',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      color: AppTheme.goldChampagne,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppTheme.goldPrimary,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text(
+                  '15 JWC DAILY POOL',
+                  style: TextStyle(
+                    fontFamily: 'JetBrains Mono',
+                    color: AppTheme.obsidian,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          _questTile('Join Telegram Channel', 'Subscribe to official JWC announcements', 500.0, Icons.telegram_rounded),
-          _questTile('Follow on X / Twitter', 'Follow @JuwishCoin on X', 250.0, Icons.share_rounded),
-          _questTile('Boost Telegram Channel', 'Grant 1 Telegram level boost', 1000.0, Icons.rocket_launch_rounded),
-          _questTile('Execute 5 Swaps', 'Trade at least 500 USDT in terminal', 1200.0, Icons.swap_horiz_rounded),
+          const SizedBox(height: 6),
+          const Text(
+            'Complete all 4 daily community & trading tasks to claim your share of 15 JWC (\$45.00 USDT) daily rewards.',
+            style: TextStyle(color: AppTheme.textMuted, fontSize: 11, height: 1.4),
+          ),
+          const SizedBox(height: 12),
+          _questTile('Join Telegram Channel', 'Subscribe to official JWC announcements', 3.0, Icons.telegram_rounded),
+          _questTile('Follow on X / Twitter', 'Follow @JuwishCoin on X', 3.0, Icons.share_rounded),
+          _questTile('Boost Telegram Channel', 'Grant 1 Telegram level boost', 4.0, Icons.rocket_launch_rounded),
+          _questTile('Execute In-App Swaps', 'Trade or swap tokens in the terminal', 5.0, Icons.swap_horiz_rounded),
         ],
       ),
     );
